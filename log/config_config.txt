@@ -1,0 +1,39 @@
+0	DIM(不可修改)
+1	the total time		//t_all
+2	species(muti-fluid)	2
+3	总网格数	//num_cell
+4	the largest value can be seen as zero
+5	the maximum number of time steps
+6	the polytropic index	//gamma
+7	CFL
+8	EUL/LAG	(默认EUL:0)
+9	order (默认1:1)
+
+10	the spatial grid size in x direction	//s_x
+11	the spatial grid size in y direction	//s_y
+12	the spatial grid size in z direction	//s_z
+13	the grid number in x direction     //n_x
+14	the grid number in y direction     //n_y
+15	the grid number in z direction     //n_z
+
+
+30	3D模拟(默认关闭)            V,W,Y,Z都初始化为0
+
+40	limiter			(默认1:Ven) 0:Barth
+41	1D-limiter-alpha	(默认1.9) (0,2)
+
+60	U_s			(默认inf) 不为inf即取U_s(一般取1):守恒量增加(熵,U_e->U_s)
+70	周期边界设定偏移
+
+#./FLUID_SRC.out 输入 输出 维数 solver 网格 (EUL, 步数)
+
+solver形式(1_Godunov, 2_ROE)
+
+步数
+>0
+=0
+
+其他修改 ?=????
+config[?]=????
+find "="
+

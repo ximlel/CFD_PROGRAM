@@ -1,0 +1,20 @@
+网格第一次运行存储，之后判断有没有网格，有就调用（如果算例网格不变就锁定）(判断结构网格后的快速算法)
+把Maire，Euler结合起来，1_D, 2_D结合起来
+oooooo	\RHO,U,V,P设为全局变量
+oooooo	config也设为全局变量(都设定初始值)
+oooooo	(数据结构为  index    value
+	        1	???
+		2	???	#注释)
+输出初始网格数据以便查看
+输出固定时间(步)间隔的数据(开关)
+oooooo	输出TEC支持动图(config开关，时间间隔T=?)
+oooooo	ifelse换成case语句
+oooooo	字符长度（全局设为一个长度） FILENAME_MAX
+支持减少网格输出矢量图
+终端显示进度
+时间步长更新改成一个函数
+输出配置文件信息，cpu信息，计算信息(log文件)
+
+(周期边界条件优化)
+
+(matlab-->python?)

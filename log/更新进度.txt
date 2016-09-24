@@ -1,0 +1,13 @@
+initialize memory double * = NULL
+
+
+
+exit
+	1 文件目录错误
+	2 读入数据错误
+	5 内存错误
+	3 计算错误
+
+periodic boundary condition(-7)
+
+TEC-->paraview 3D

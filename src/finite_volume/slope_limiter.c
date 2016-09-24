@@ -172,14 +172,14 @@ void slope_limiter(struct cell_var * cv, struct mesh_var mv, struct flu_var FV)
 	else if (dim == 2)
 		{
 //printf("RHO\n");
-			lsq_limiter(*cv, mv, cv->gradx_rho, cv->grady_rho, cv->U_rho);
+			lsq_limiter(*cv, mv, cv->gradx_rho, cv->grady_rho, FV.RHO);
 //printf("E\n");
-			lsq_limiter(*cv, mv, cv->gradx_e, cv->grady_e, cv->U_e);
+			lsq_limiter(*cv, mv, cv->gradx_e, cv->grady_e, FV.P);
 //printf("U\n");
-			lsq_limiter(*cv, mv, cv->gradx_u, cv->grady_u, cv->U_u);
+			lsq_limiter(*cv, mv, cv->gradx_u, cv->grady_u, FV.U);
 //printf("V\n");
-			lsq_limiter(*cv, mv, cv->gradx_v, cv->grady_v, cv->U_v);		
+			lsq_limiter(*cv, mv, cv->gradx_v, cv->grady_v, FV.V);		
 			if ((int)config[2] == 2)
-				lsq_limiter(*cv, mv, cv->gradx_phi, cv->grady_phi, cv->U_phi);	
+				lsq_limiter(*cv, mv, cv->gradx_phi, cv->grady_phi, FV.PHI);	
 		}
 }

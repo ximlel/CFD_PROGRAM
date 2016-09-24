@@ -48,12 +48,15 @@ void Euler_scheme(struct flu_var *FV, const struct mesh_var mv, const char *sche
 		{
 			start_clock = clock();
 			
-			if (order > 1 && el != 0 && i > 0)
-				cell_centroid(&cv, mv);
+			if (order > 1)
+				{
+					if (el != 0 && i > 0)
+						cell_centroid(&cv, mv);
+					if (mv.bc != NULL)
+						mv.bc(&cv, mv, t_all);			
+					slope_limiter(&cv, mv, *FV);
+				}
 			
-			if (order > 1)				
-				slope_limiter(&cv, mv, *FV);
-
 			if (mv.bc != NULL)
 				mv.bc(&cv, mv, t_all);
 			
@@ -106,7 +109,7 @@ void Euler_scheme(struct flu_var *FV, const struct mesh_var mv, const char *sche
 								}
 							else if (order == 2)
 								{													
-								if(strcmp(scheme,"GRP") == 0)
+									if(strcmp(scheme,"GRP") == 0)
 										GRP_scheme(&ifv, &ifv_R, tau);
 									else										
 										{
@@ -136,7 +139,9 @@ void Euler_scheme(struct flu_var *FV, const struct mesh_var mv, const char *sche
 			DispPro(t_all*100.0/config[1], i);
 						
 			cpu_time += (clock() - start_clock) / (double)CLOCKS_PER_SEC;
-	fluid_var_update(FV, cv);			
+
+			fluid_var_update(FV, cv);			
+
 			if (stop_step == 1)
 				break;				
 		}

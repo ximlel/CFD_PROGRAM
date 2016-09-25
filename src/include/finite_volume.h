@@ -3,7 +3,7 @@ int cons2prim(struct i_f_var * ifv);
 void cons_qty_update(struct cell_var * cv, const struct mesh_var mv, const double tau);
 
 
-struct cell_var cell_mem_init(const struct mesh_var mv);
+struct cell_var cell_mem_init(const struct mesh_var mv, struct flu_var * FV);
 void vol_comp(struct cell_var * cv, const struct mesh_var mv);
 void cell_pt_clockwise(struct mesh_var * mv);
 void cell_rel(struct cell_var * cv, const struct mesh_var mv);

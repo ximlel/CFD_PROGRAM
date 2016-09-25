@@ -83,8 +83,7 @@ void GRP_scheme(struct i_f_var * ifv, struct i_f_var * ifv_R, double tau)
 	double wave_speed[2], dire[4], mid[4];
 	double gamma = ifv->gamma;
 
-	linear_GRP_2D_solver_Edir(wave_speed, dire, mid, 0.0, ifv->RHO, ifv->RHO, 0, 0, u, u_R, 0, 0, v, v_R, 0, 0, ifv->P, ifv_R->P, 0, 0, gamma, eps);
-//	linear_GRP_2D_solver_Edir(wave_speed, dire, mid, 0.0, ifv->RHO, ifv->RHO, ifv->d_rho, ifv_R->d_rho, u, u_R, d_u, d_u_R, v, v_R, d_v, d_v_R, ifv->P, ifv_R->P, ifv->d_p, ifv_R->d_p, gamma, eps);
+	linear_GRP_2D_solver_Edir(wave_speed, dire, mid, 0.0, ifv->RHO, ifv_R->RHO, ifv->d_rho, ifv_R->d_rho, u, u_R, d_u, d_u_R, v, v_R, d_v, d_v_R, ifv->P, ifv_R->P, ifv->d_p, ifv_R->d_p, gamma, eps);
 
 	double rho_mid, p_mid, u_mid, v_mid, mid_qt;
 	rho_mid = mid[0] + 0.5*tau*dire[0];

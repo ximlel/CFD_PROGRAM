@@ -12,12 +12,10 @@ static inline double mu_BJ(double x)
 {
 	return (x<1?x:1);
 }
-
 static inline double mu_Ven(double x)
 {
 	return ((x*x+2*x)/(x*x+x+2));
 }
-
 
 static void lsq_limiter
 (struct cell_var cv, struct mesh_var mv, 
@@ -112,13 +110,7 @@ static void lsq_limiter
 				}
 			grad_W_x[k] = grad_W_x[k] * fai_W;
 			grad_W_y[k] = grad_W_y[k] * fai_W;
-/*			if(k>=0 && k<=99)
-				{
-					printf("fai_W    = %lf. k = %d.\n", fai_W, k);
-					printf("grad_W_x = %lf. k = %d.\n", grad_W_x[k], k);
-					printf("grad_W_y = %lf. k = %d.\n", grad_W_y[k], k);
-				}
-*/		}
+		}
 }
 
 static void minmod_limiter
@@ -163,23 +155,42 @@ void slope_limiter(struct cell_var * cv, struct mesh_var mv, struct flu_var FV)
 
 	if (dim == 1)
 		{
-			minmod_limiter(*cv, mv, cv->gradx_rho, cv->U_rho);
-			minmod_limiter(*cv, mv, cv->gradx_e, cv->U_e);
-			minmod_limiter(*cv, mv, cv->gradx_u, cv->U_u);
-			if ((int)config[2] == 2)
-				minmod_limiter(*cv, mv, cv->gradx_phi, cv->U_phi);;
+			if (isinf(config[31]))
+				{
+					minmod_limiter(*cv, mv, cv->gradx_rho, FV.RHO);
+					minmod_limiter(*cv, mv, cv->gradx_e, FV.P);
+					minmod_limiter(*cv, mv, cv->gradx_u, FV.U);
+					if ((int)config[2] == 2)
+						minmod_limiter(*cv, mv, cv->gradx_phi, FV.PHI);
+				}
+			else
+				{									
+					minmod_limiter(*cv, mv, cv->gradx_rho, cv->U_rho);
+					minmod_limiter(*cv, mv, cv->gradx_e, cv->U_e);
+					minmod_limiter(*cv, mv, cv->gradx_u, cv->U_u);
+					if ((int)config[2] == 2)
+						minmod_limiter(*cv, mv, cv->gradx_phi, cv->U_phi);
+				}
 		}
 	else if (dim == 2)
 		{
-//printf("RHO\n");
-			lsq_limiter(*cv, mv, cv->gradx_rho, cv->grady_rho, FV.RHO);
-//printf("E\n");
-			lsq_limiter(*cv, mv, cv->gradx_e, cv->grady_e, FV.P);
-//printf("U\n");
-			lsq_limiter(*cv, mv, cv->gradx_u, cv->grady_u, FV.U);
-//printf("V\n");
-			lsq_limiter(*cv, mv, cv->gradx_v, cv->grady_v, FV.V);		
-			if ((int)config[2] == 2)
-				lsq_limiter(*cv, mv, cv->gradx_phi, cv->grady_phi, FV.PHI);	
+			if (isinf(config[31]))
+				{									
+					lsq_limiter(*cv, mv, cv->gradx_rho, cv->grady_rho, FV.RHO);
+					lsq_limiter(*cv, mv, cv->gradx_e, cv->grady_e, FV.P);
+					lsq_limiter(*cv, mv, cv->gradx_u, cv->grady_u, FV.U);
+					lsq_limiter(*cv, mv, cv->gradx_v, cv->grady_v, FV.V);
+					if ((int)config[2] == 2)
+						lsq_limiter(*cv, mv, cv->gradx_phi, cv->grady_phi, FV.PHI);	
+				}
+			else
+				{
+					lsq_limiter(*cv, mv, cv->gradx_rho, cv->grady_rho, cv->U_rho);
+					lsq_limiter(*cv, mv, cv->gradx_e, cv->grady_e, cv->U_e);
+					lsq_limiter(*cv, mv, cv->gradx_u, cv->grady_u, cv->U_u);
+					lsq_limiter(*cv, mv, cv->gradx_v, cv->grady_v, cv->U_v);
+					if ((int)config[2] == 2)
+						lsq_limiter(*cv, mv, cv->gradx_phi, cv->grady_phi, cv->U_phi);
+				}
 		}
 }

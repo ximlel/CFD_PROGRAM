@@ -7,10 +7,10 @@
 
 
 
-#define copy(var)  cv->var[i] = cv->var[pc[i]]
+#define CV_COPY(var)  cv->var[i] = cv->var[pc[i]]
+#define FV_COPY(var)  FV->var[i] = FV->var[pc[i]]
 
-
-void period_ghost(struct cell_var * cv, struct mesh_var mv, double t)
+void period_ghost(struct cell_var * cv, struct mesh_var mv, struct flu_var * FV, double t)
 {
 	const int dim = (int)config[0];
 	const int order = (int)config[9];
@@ -20,52 +20,59 @@ void period_ghost(struct cell_var * cv, struct mesh_var mv, double t)
 	
 	for(int i = num_cell; i < num_cell_ghost; i++)
 		{
-			copy(U_rho);
-			copy(U_gamma);
-			copy(U_e);
-			copy(U_u);
+			CV_COPY(U_rho);			
+			CV_COPY(U_gamma);
+			CV_COPY(U_e);
+			CV_COPY(U_u);
+			FV_COPY(RHO);
+			FV_COPY(gamma);
+			FV_COPY(P);
+			FV_COPY(U);
 			if (order > 1)
 				{
-					copy(gradx_rho);
-					copy(gradx_e);
-					copy(gradx_u);;
+					CV_COPY(gradx_rho);
+					CV_COPY(gradx_e);
+					CV_COPY(gradx_u);
 				}
 			if (dim > 1)
 				{
-					copy(U_v);
+					CV_COPY(U_v);
+					FV_COPY(V);
 					if (order > 1)
 						{
-							copy(grady_rho);
-							copy(grady_e);
-							copy(grady_u);
-							copy(grady_v);
-							copy(gradx_v);
+							CV_COPY(grady_rho);
+							CV_COPY(grady_e);
+							CV_COPY(grady_u);
+							CV_COPY(grady_v);
+							CV_COPY(gradx_v);
 						}
 				}
 			if (dim > 2)
 				{
-					copy(U_w);
+					CV_COPY(U_w);
+					FV_COPY(W);
 					if (order > 1)
 						{
-							copy(gradz_rho);
-							copy(gradz_e);
-							copy(gradz_u);
-							copy(gradz_v);
-							copy(gradz_w);
-							copy(grady_w);
-							copy(gradx_w);
+							CV_COPY(gradz_rho);
+							CV_COPY(gradz_e);
+							CV_COPY(gradz_u);
+							CV_COPY(gradz_v);
+							CV_COPY(gradz_w);
+							CV_COPY(grady_w);
+							CV_COPY(gradx_w);
 						}
 				}
 			if ((int)config[2] == 2)
 				{
-					copy(U_phi);
+					CV_COPY(U_phi);
+					FV_COPY(PHI);
 					if (order > 1)
 						{
-							copy(gradx_phi);
+							CV_COPY(gradx_phi);
 							if (dim > 2)
-								copy(grady_phi);
+								CV_COPY(grady_phi);
 							if (dim > 3)
-								copy(gradz_phi);
+								CV_COPY(gradz_phi);
 						}
 				}
 		}
@@ -109,6 +116,6 @@ void period_cell_modi(struct mesh_var * mv)
 					else
 						break;
 				}	 				
-		}
+		}	
 	mv->bc = period_ghost;
 }

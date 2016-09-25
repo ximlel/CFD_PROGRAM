@@ -63,12 +63,5 @@ int main(int argc, char *argv[])
 	if((int)config[0] > 1)
 		file_write_VTK_3D(FV, mv, argv[2]);
 	
-/*
-	for (int i = 0; i < 20; i++)
-			printf("%d,%lf\n",i, config[i]);
-
-	for (int i = 0; i < 1000; i++)
-			printf("%d,%lf\n",i, FV.P[i]);
-*/	
 	return 0;	
 }

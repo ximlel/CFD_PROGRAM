@@ -12,6 +12,17 @@
 #define MAX(a,b) ((a) > (b) ? (a) : (b))
 
 
+#define FV_RESET_MEM(v, n)												\
+	do {																\
+		FV->v = realloc(FV->v, (n) * sizeof(double));						\
+		if(FV->v == NULL)												\
+			{															\
+				fprintf(stderr, "Not enough memory in fluid var init!\n"); \
+				goto return_NULL;										\
+			}															\
+	} while (0)															\
+		
+
 #define cv_init_mem(v, n)												\
 	do {																\
 		cv.v = malloc((n) * sizeof(double));							\
@@ -44,7 +55,7 @@
 		init_mem_int(cv.v, n, mv.cell_pt);								\
 	} while (0)															\
 
-struct cell_var cell_mem_init(const struct mesh_var mv)
+struct cell_var cell_mem_init(const struct mesh_var mv, struct flu_var * FV)
 {
 	const int dim = (int)config[0];
 	const int order = (int)config[9];
@@ -69,6 +80,10 @@ struct cell_var cell_mem_init(const struct mesh_var mv)
 	cv_init_mem(U_e, num_cell_ghost);
 	cv_init_mem(U0_e, num_cell);
 
+	FV_RESET_MEM(U, num_cell_ghost);
+	FV_RESET_MEM(RHO, num_cell_ghost);
+	FV_RESET_MEM(P, num_cell_ghost);
+
 	if (order > 1)
 		{
 			cv_init_mem(X_c, num_cell_ghost);
@@ -83,6 +98,8 @@ struct cell_var cell_mem_init(const struct mesh_var mv)
 			cp_init_mem(F_v, num_cell);
 			cv_init_mem(U_v, num_cell_ghost);
 			cv_init_mem(U0_v, num_cell);
+
+			FV_RESET_MEM(V, num_cell_ghost);
 			if (order > 1)
 				{
 					cv_init_mem(Y_c, num_cell_ghost);
@@ -98,7 +115,9 @@ struct cell_var cell_mem_init(const struct mesh_var mv)
 			cp_init_mem(n_z, num_cell_ghost);
 			cp_init_mem(F_w, num_cell);
 			cv_init_mem(U_w, num_cell_ghost);
-			cv_init_mem(U0_w, num_cell);		
+			cv_init_mem(U0_w, num_cell);
+			
+			FV_RESET_MEM(W, num_cell_ghost);
 			if (order > 1)
 				{
 					cv_init_mem(Z_c, num_cell_ghost);
@@ -116,7 +135,9 @@ struct cell_var cell_mem_init(const struct mesh_var mv)
 		{	
 			cp_init_mem(F_phi, num_cell);
 			cv_init_mem(U_phi, num_cell_ghost);
-			cv_init_mem(U0_phi, num_cell);				
+			cv_init_mem(U0_phi, num_cell);
+
+			FV_RESET_MEM(PHI, num_cell);
 			if (order > 1)
 				{
 					cv_init_mem(gradx_phi, num_cell_ghost);
@@ -129,6 +150,8 @@ struct cell_var cell_mem_init(const struct mesh_var mv)
 	cp_init_mem(F_gamma, num_cell);
 	cv_init_mem(U_gamma, num_cell_ghost);
 	cv_init_mem(U0_gamma, num_cell);
+
+	FV_RESET_MEM(gamma, num_cell_ghost);
 	if (!isinf(config[60]))
 		{					
 			if (order > 1)

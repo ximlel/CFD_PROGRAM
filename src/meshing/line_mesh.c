@@ -4,34 +4,28 @@
 #include <math.h>
 
 #include "../include/var_struc.h"
+#include "../include/meshing.h"
 
-
-static int line_mesh(struct mesh_var * mv)
+static int line_mesh(struct mesh_var * mv, int n_add)
 {
-	int k;
-	const int num_cell = (int)config[3];
-
-	if(isinf(config[13]))
-		{
-			fprintf(stderr, "The initial data is not mentioned in the 1-D mesh!\n");
-			exit(2);
-		}
 	if(isinf(config[10]) || config[10] < config[4])
 		{
 			fprintf(stderr, "Without a proper spatial grid size!\n");
 			exit(2);
 		}
+	const int num_cell = (int)config[3] + n_add;
+	if (num_cell > (int)config[3])
+		printf("There are %d ghost cell!\n", mv->num_ghost = num_cell - (int)config[3]);
 	
-	const int n_x = (int)config[13];
-
-	mv->num_pt = n_x+1;
+	mv->num_pt = num_cell + 1;
 	mv->X = malloc(mv->num_pt * sizeof(double));
 	if(mv->X == NULL)
 		{
 			printf("Not enough memory in 1-D mesh constructed!\n");
 			goto return_0;
 		}
-	for(k = 0; k < mv->num_pt; ++k)
+	int k;
+	for(k = 0; k < mv->num_pt; k++)
 		mv->X[k] = k * config[10];		
 	
 	mv->cell_pt = malloc(num_cell * sizeof(void *));
@@ -40,7 +34,7 @@ static int line_mesh(struct mesh_var * mv)
 			fprintf(stderr, "Not enough memory in 1-D mesh constructed!\n");
 			goto return_0;
 		}
-	for(k = 0; k < num_cell; ++k)
+	for(k = 0; k < num_cell; k++)
 		{
 			mv->cell_pt[k] = malloc(3 * sizeof(int));
 			if(mv->cell_pt[k] == NULL)
@@ -70,7 +64,7 @@ static int line_mesh(struct mesh_var * mv)
 		}
 	
 	mv->border_pt[0] = 0;
-	mv->border_pt[1] = num_cell;
+	mv->border_pt[1] = mv->num_pt - 1;
 
 	return 1;
 
@@ -94,12 +88,66 @@ static int line_mesh(struct mesh_var * mv)
 	return 0;	
 }
 
+static void line_border_cond(struct mesh_var * mv, int n_add, int left, int right)
+{
+	if (left >= 0 || right >= 0)
+		{
+			fprintf(stderr, "Input wrong boundary condition in quadrilateral mesh!\n");
+			exit(2);
+		}
+	else if ((left == -7) - (right == -7) != 0)
+		{
+			fprintf(stderr, "Periodic boundary condition error!\n");
+			exit(2);
+		}
+
+	const int num_cell = (int)config[3] + n_add;
+
+	mv->border_cond[0] = left;
+	mv->border_cond[1] = right;
+	
+	mv->peri_cell = malloc(num_cell * sizeof(int));
+	if(mv->peri_cell == NULL)
+		{
+			printf("Not enough memory in quad periodic boundary constructed!\n");
+			exit(5);
+		}
+	int k;
+	for(k = 0; k < num_cell; k++)
+		mv->peri_cell[k] = -1;
+	
+	if (right == -7)				
+		mv->peri_cell[0] = num_cell - 1;
+	if (left == -7)
+		mv->peri_cell[1] = 0;
+			
+	if(mv->num_ghost > 0)
+		period_cell_modi(mv);
+}
 
 void free_1D_mesh(struct mesh_var * mv)
 {
-	if (line_mesh(mv) == 0)
+	const int n_a = 0;
+	if (line_mesh(mv, n_a) == 0)
 		exit(5);
 
-	mv->border_cond[0] = -3;
-	mv->border_cond[1] = -3;
+	line_border_cond(mv, n_a, -3, -3);
+}
+
+void inflow_1D_mesh(struct mesh_var * mv)
+{
+	const int n_a = 0;
+	if (line_mesh(mv, n_a) == 0)
+		exit(5);
+
+	line_border_cond(mv, n_a, -1, -3);
+}
+
+void periodic_1D_mesh(struct mesh_var * mv)
+{
+	const int n_a = 2;
+	if (line_mesh(mv, n_a) == 0)
+		exit(5);
+
+	line_border_cond(mv, n_a, -7, -7);
 }

@@ -23,7 +23,7 @@
 	} while (0)															\
 		
 
-#define cv_init_mem(v, n)												\
+#define CV_INIT_MEM(v, n)												\
 	do {																\
 		cv.v = malloc((n) * sizeof(double));							\
 		if(cv.v == NULL)												\
@@ -33,7 +33,7 @@
 			}															\
 	} while (0)															\
 
-#define cp_init_mem(v, n)												\
+#define CP_INIT_MEM(v, n)												\
 	do {																\
 		cv.v = malloc((n) * sizeof(void *));							\
 		if(cv.v == NULL)												\
@@ -44,7 +44,7 @@
 		init_mem(cv.v, n, mv.cell_pt);									\
 	} while (0)															\
 
-#define cp_init_mem_int(v, n)											\
+#define CP_INIT_MEM_INT(v, n)											\
 	do {																\
 		cv.v = malloc((n) * sizeof(void *));							\
 		if(cv.v == NULL)												\
@@ -64,103 +64,89 @@ struct cell_var cell_mem_init(const struct mesh_var mv, struct flu_var * FV)
 	
 	struct cell_var cv;
 
-	cp_init_mem_int(cell_cell, num_cell_ghost);
-	cv_init_mem(vol, num_cell_ghost);	
-	cp_init_mem(n_x, num_cell_ghost);
+	CP_INIT_MEM_INT(cell_cell, num_cell_ghost);
+	CV_INIT_MEM(vol, num_cell_ghost);	
+	CP_INIT_MEM(n_x, num_cell_ghost);
 	
-	cp_init_mem(F_u, num_cell);
-	cv_init_mem(U_u, num_cell_ghost);
-	cv_init_mem(U0_u, num_cell);
-
-	cp_init_mem(F_rho, num_cell);
-	cv_init_mem(U_rho, num_cell_ghost);
-	cv_init_mem(U0_rho, num_cell);
-
-	cp_init_mem(F_e, num_cell);
-	cv_init_mem(U_e, num_cell_ghost);
-	cv_init_mem(U0_e, num_cell);
-
+	CP_INIT_MEM(F_u, num_cell);
+	CV_INIT_MEM(U_u, num_cell_ghost);
+	CP_INIT_MEM(F_rho, num_cell);
+	CV_INIT_MEM(U_rho, num_cell_ghost);
+	CP_INIT_MEM(F_e, num_cell);
+	CV_INIT_MEM(U_e, num_cell_ghost);
 	FV_RESET_MEM(U, num_cell_ghost);
 	FV_RESET_MEM(RHO, num_cell_ghost);
 	FV_RESET_MEM(P, num_cell_ghost);
 
 	if (order > 1)
 		{
-			cv_init_mem(X_c, num_cell_ghost);
-			cv_init_mem(gradx_rho, num_cell_ghost);
-			cv_init_mem(gradx_e, num_cell_ghost);
-			cv_init_mem(gradx_u, num_cell_ghost);			
+			CV_INIT_MEM(X_c, num_cell_ghost);
+			CV_INIT_MEM(gradx_rho, num_cell_ghost);
+			CV_INIT_MEM(gradx_e, num_cell_ghost);
+			CV_INIT_MEM(gradx_u, num_cell_ghost);			
 		}
 	
 	if (dim > 1)
 		{
-			cp_init_mem(n_y, num_cell_ghost);
-			cp_init_mem(F_v, num_cell);
-			cv_init_mem(U_v, num_cell_ghost);
-			cv_init_mem(U0_v, num_cell);
-
+			CP_INIT_MEM(n_y, num_cell_ghost);
+			CP_INIT_MEM(F_v, num_cell);
+			CV_INIT_MEM(U_v, num_cell_ghost);
 			FV_RESET_MEM(V, num_cell_ghost);
 			if (order > 1)
 				{
-					cv_init_mem(Y_c, num_cell_ghost);
-					cv_init_mem(grady_rho, num_cell_ghost);
-					cv_init_mem(grady_e, num_cell_ghost);
-					cv_init_mem(grady_u, num_cell_ghost);
-					cv_init_mem(grady_v, num_cell_ghost);
-					cv_init_mem(gradx_v, num_cell_ghost);
+					CV_INIT_MEM(Y_c, num_cell_ghost);
+					CV_INIT_MEM(grady_rho, num_cell_ghost);
+					CV_INIT_MEM(grady_e, num_cell_ghost);
+					CV_INIT_MEM(grady_u, num_cell_ghost);
+					CV_INIT_MEM(grady_v, num_cell_ghost);
+					CV_INIT_MEM(gradx_v, num_cell_ghost);
 				}
 		}
 	if (dim > 2)
 		{					
-			cp_init_mem(n_z, num_cell_ghost);
-			cp_init_mem(F_w, num_cell);
-			cv_init_mem(U_w, num_cell_ghost);
-			cv_init_mem(U0_w, num_cell);
-			
+			CP_INIT_MEM(n_z, num_cell_ghost);
+			CP_INIT_MEM(F_w, num_cell);
+			CV_INIT_MEM(U_w, num_cell_ghost);			
 			FV_RESET_MEM(W, num_cell_ghost);
 			if (order > 1)
 				{
-					cv_init_mem(Z_c, num_cell_ghost);
-					cv_init_mem(gradz_rho, num_cell_ghost);
-					cv_init_mem(gradz_e, num_cell_ghost);
-					cv_init_mem(gradz_u, num_cell_ghost);
-					cv_init_mem(gradz_v, num_cell_ghost);
-					cv_init_mem(gradz_w, num_cell_ghost);
-					cv_init_mem(grady_w, num_cell_ghost);
-					cv_init_mem(gradx_w, num_cell_ghost);
+					CV_INIT_MEM(Z_c, num_cell_ghost);
+					CV_INIT_MEM(gradz_rho, num_cell_ghost);
+					CV_INIT_MEM(gradz_e, num_cell_ghost);
+					CV_INIT_MEM(gradz_u, num_cell_ghost);
+					CV_INIT_MEM(gradz_v, num_cell_ghost);
+					CV_INIT_MEM(gradz_w, num_cell_ghost);
+					CV_INIT_MEM(grady_w, num_cell_ghost);
+					CV_INIT_MEM(gradx_w, num_cell_ghost);
 				}
 		}
 
 	if ((int)config[2] == 2)
 		{	
-			cp_init_mem(F_phi, num_cell);
-			cv_init_mem(U_phi, num_cell_ghost);
-			cv_init_mem(U0_phi, num_cell);
-
-			FV_RESET_MEM(PHI, num_cell);
+			CP_INIT_MEM(F_phi, num_cell);
+			CV_INIT_MEM(U_phi, num_cell_ghost);
+			FV_RESET_MEM(PHI, num_cell_ghost);
 			if (order > 1)
 				{
-					cv_init_mem(gradx_phi, num_cell_ghost);
+					CV_INIT_MEM(gradx_phi, num_cell_ghost);
+					if (dim > 1)
+						CV_INIT_MEM(grady_phi, num_cell_ghost);
 					if (dim > 2)
-						cv_init_mem(grady_phi, num_cell_ghost);
-					if (dim > 3)
-						cv_init_mem(gradz_phi, num_cell_ghost);	
+						CV_INIT_MEM(gradz_phi, num_cell_ghost);	
 				}
 		}
-	cp_init_mem(F_gamma, num_cell);
-	cv_init_mem(U_gamma, num_cell_ghost);
-	cv_init_mem(U0_gamma, num_cell);
-
+	CP_INIT_MEM(F_gamma, num_cell);
+	CV_INIT_MEM(U_gamma, num_cell_ghost);
 	FV_RESET_MEM(gamma, num_cell_ghost);
 	if (!isinf(config[60]))
 		{					
 			if (order > 1)
 				{
-					cv_init_mem(gradx_gamma, num_cell_ghost);
+					CV_INIT_MEM(gradx_gamma, num_cell_ghost);
+					if (dim > 1)
+						CV_INIT_MEM(grady_gamma, num_cell_ghost);
 					if (dim > 2)
-						cv_init_mem(grady_gamma, num_cell_ghost);
-					if (dim > 3)
-						cv_init_mem(gradz_gamma, num_cell_ghost);	
+						CV_INIT_MEM(gradz_gamma, num_cell_ghost);	
 				}
 		}
 

@@ -72,13 +72,8 @@ void file_write_TEC(const struct flu_var FV, const struct mesh_var mv, const cha
 		fprintf(fp, ", \"V\"");
 	if (dim_plot > 2)
 		fprintf(fp, ", \"W\"");
-	if (!isinf(config[2]))
-		switch((int)config[2])
-			{
-			case 2 :
-				fprintf(fp, ", \"PHI\"");
-				break;				
-			}
+	if ((int)config[2] == 2)		 							
+		fprintf(fp, ", \"PHI\"");
 	fprintf(fp, "\n");
 					
 	fprintf(fp, "ZONE T=\"Fluid Region\", SOLUTIONTIME=%.15g \n", time);
@@ -110,12 +105,8 @@ void file_write_TEC(const struct flu_var FV, const struct mesh_var mv, const cha
 		}
 	
 	num_data = dim_plot + 2 + dim_plot;
-	switch((int)config[2])
-		{
-		case 2 :
-			num_data++;
-			break;				
-		}
+	if ((int)config[2] == 2)
+		num_data++;
 	fprintf(fp, "VARLOCATION=([%d-%d]=CELLCENTERED)\n", dim_plot + 1, num_data);
 
 	PRINT_NP(X);

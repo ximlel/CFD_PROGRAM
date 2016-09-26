@@ -56,7 +56,7 @@ int main(int argc, char *argv[])
 	file_write_TEC(FV, mv, argv[2], 0.0, (int)config[0]);	
 
 	
-	Euler_scheme(&FV, mv, scheme);
+	finite_volume_scheme(&FV, mv, scheme);
 
 	file_write_TEC(FV, mv, argv[2], config[1], (int)config[0]);
 

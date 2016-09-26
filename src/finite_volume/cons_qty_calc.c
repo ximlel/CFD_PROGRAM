@@ -11,7 +11,8 @@
 void cons_qty_init(struct cell_var * cv, const struct flu_var FV)
 {
 	const int dim = (int)config[0];
-	for(int k = 0; k < (int)config[3]; k++)
+	const int num_cell = (int)config[3];
+	for(int k = 0; k < num_cell; k++)
 		{
 			cv->U_rho[k]   = FV.RHO[k];
 			cv->U_gamma[k] = FV.RHO[k] * FV.gamma[k];			
@@ -29,17 +30,6 @@ void cons_qty_init(struct cell_var * cv, const struct flu_var FV)
 				}
 			if ((int)config[2] == 2)					
 				cv->U_phi[k] = FV.RHO[k] * FV.PHI[k];
-
-			cv->U0_rho[k]   = cv->U_rho[k];
-			cv->U0_gamma[k] = cv->U_gamma[k];
-			cv->U0_e[k]     = cv->U_e[k];
-			cv->U0_u[k]     = cv->U_u[k];			
-			if (dim > 1)									
-				cv->U0_v[k] = cv->U_v[k];
-			if (dim > 2)									
-				cv->U0_w[k] = cv->U_w[k];
-			if ((int)config[2] == 2)					
-				cv->U0_phi[k] = cv->U_phi[k];
 		}
 }
 
@@ -70,10 +60,9 @@ int cons2prim(struct i_f_var * ifv)
 	if ((int)config[2] == 2)
 		{
 			ifv->PHI = ifv->U_phi/ifv->U_rho;
-			if (isnan(ifv->PHI) || ifv->PHI < -10*eps || ifv->PHI > 1.0 + 10*eps)
+			if (isnan(ifv->PHI) || ifv->PHI < -0.1 || ifv->PHI > 1.0 + 0.1)//-100*eps
 				return 0;
 		}
-
 	if (isnan(ifv->RHO + ifv->U + ifv->P) || isinf(ifv->RHO + ifv->U + ifv->P) || ifv->RHO < -10*eps || ifv->P < -10*eps)
 		return 0;
 
@@ -88,9 +77,11 @@ void cons_qty_update(struct cell_var * cv, const struct mesh_var mv, const doubl
 	int ** cp = mv.cell_pt;
 	
 	int p_p, p_n;
-	double length;
+	double length, gamma;
 	for(int k = 0; k < num_cell; ++k)
 		{
+			if(isinf(config[60]))
+				gamma = cv->U_gamma[k]/cv->U_rho[k];
 			for(int j = 0; j < cp[k][0]; ++j)
 				{
 					if(j == cp[k][0]-1) 
@@ -118,6 +109,6 @@ void cons_qty_update(struct cell_var * cv, const struct mesh_var mv, const doubl
 						cv->U_gamma[k] += - tau*cv->F_gamma[k][j] * length / cv->vol[k];
 				}
 			if(isinf(config[60]))
-				cv->U_gamma[k] = cv->U0_gamma[k]/cv->U0_rho[k]*cv->U_rho[k];
+				cv->U_gamma[k] = gamma*cv->U_rho[k];
 		}
 }

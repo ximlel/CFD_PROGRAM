@@ -15,7 +15,7 @@ void slope_limiter(struct cell_var * cv, const struct mesh_var mv, const struct 
 
 int interface_var_init
 (const struct cell_var cv, const struct mesh_var mv, struct i_f_var * ifv,
- struct i_f_var * ifv_R, const int k, const int j);
+ struct i_f_var * ifv_R, const int k, const int j, const int i);
 double tau_calc(const struct cell_var cv, const struct mesh_var mv);
 int fluid_var_update(struct flu_var *FV, struct cell_var cv);
 
@@ -26,4 +26,4 @@ void Riemann_exact_scheme(struct i_f_var * ifv, struct i_f_var * ifv_R);
 void GRP_scheme(struct i_f_var * ifv, struct i_f_var * ifv_R, double tau);
 
 
-void Euler_scheme(struct flu_var *FV, const struct mesh_var mv, const char *scheme);
+void finite_volume_scheme(struct flu_var *FV, const struct mesh_var mv, const char *scheme);

@@ -49,7 +49,7 @@ void Riemann_exact_scheme(struct i_f_var * ifv, struct i_f_var * ifv_R)
 	rho_mid = mid[0];
 	p_mid = mid[2];
 
-	if(mid[1]>0)
+	if(mid[1] > 0)
 		mid_qt = -ifv->U  *n_y + ifv->V  *n_x;
 	else
 		mid_qt = -ifv_R->U*n_y + ifv_R->V*n_x;
@@ -61,6 +61,15 @@ void Riemann_exact_scheme(struct i_f_var * ifv, struct i_f_var * ifv_R)
 	ifv->F_v   = ifv->F_rho*v_mid + p_mid*n_y;
 	ifv->F_e   = (ifv->gamma/(ifv->gamma-1.0))*p_mid/rho_mid + 0.5*(u_mid*u_mid + v_mid*v_mid);
 	ifv->F_e   = ifv->F_rho*ifv->F_e;
+	if ((int)config[2] == 2)
+		{
+			double phi_mid;
+			if(mid[1] > 0)
+				phi_mid = ifv->PHI;
+			else
+				phi_mid = ifv_R->PHI;
+			ifv->F_phi = ifv->F_rho * phi_mid;
+		}
 	if (!isinf(config[60]))
 		ifv->F_gamma = ifv->F_rho*ifv->gamma;
 }
@@ -96,4 +105,11 @@ void GRP_scheme(struct i_f_var * ifv, struct i_f_var * ifv_R, double tau)
 	ifv->F_v   = ifv->F_rho*v_mid + p_mid*n_y;
 	ifv->F_e   = (gamma/(gamma-1.0))*p_mid/rho_mid + 0.5*(u_mid*u_mid + v_mid*v_mid);
 	ifv->F_e   = ifv->F_rho*ifv->F_e;
+	if ((int)config[2] == 2)
+		{					
+			linear_GRP_2D_solver_Edir(wave_speed, dire, mid, 0.0, ifv->RHO, ifv_R->RHO, ifv->d_rho, ifv_R->d_rho, u, u_R, d_u, d_u_R, ifv->PHI, ifv_R->PHI, ifv->d_phi, ifv_R->d_phi, ifv->P, ifv_R->P, ifv->d_p, ifv_R->d_p, gamma, eps);
+			double phi_mid;
+			phi_mid = mid[2] + 0.5*tau*mid[0]*dire[2]/rho_mid;
+			ifv->F_phi = ifv->F_rho*phi_mid;
+		}
 }

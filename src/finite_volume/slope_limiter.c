@@ -181,7 +181,7 @@ void slope_limiter(struct cell_var * cv, struct mesh_var mv, struct flu_var FV)
 					lsq_limiter(*cv, mv, cv->gradx_u, cv->grady_u, FV.U);
 					lsq_limiter(*cv, mv, cv->gradx_v, cv->grady_v, FV.V);
 					if ((int)config[2] == 2)
-						lsq_limiter(*cv, mv, cv->gradx_phi, cv->grady_phi, FV.PHI);	
+						lsq_limiter(*cv, mv, cv->gradx_phi, cv->grady_phi, FV.PHI);
 				}
 			else
 				{

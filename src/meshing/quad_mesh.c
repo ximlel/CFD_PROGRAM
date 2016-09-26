@@ -30,11 +30,6 @@ static int quad_mesh(struct mesh_var * mv, int n_x_add, int n_y_add)
 	const int num_cell = n_x * n_y;
 	if (num_cell > (int)config[3])
 		printf("There are %d ghost cell!\n", mv->num_ghost = num_cell - (int)config[3]);
-	else if (num_cell < (int)config[3])
-		{
-			fprintf(stderr,"There are not enough cell in .msh file!\n");
-			exit(2);
-		}
 
 	mv->num_pt = (n_x+1)*(n_y+1);
 	mv->X = malloc(mv->num_pt * sizeof(double));

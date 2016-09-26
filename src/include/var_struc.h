@@ -29,7 +29,6 @@ struct cell_var {
 	double **n_x, **n_y, **n_z;
 	double **F_rho, **F_e, **F_gamma, **F_phi, **F_u, **F_v, **F_w;
 	double  *U_rho,  *U_e,  *U_gamma,  *U_phi,  *U_u,  *U_v,  *U_w;
-	double *U0_rho, *U0_e, *U0_gamma, *U0_phi, *U0_u, *U0_v, *U0_w;
 	double    *U_p,    *V_p,    *F_pc_x,    *F_pc_y;
 	double *dt_U_p, *dt_V_p, *dt_F_pc_x, *dt_F_pc_y;
 	double *X_c, *Y_c, *Z_c;

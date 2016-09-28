@@ -36,6 +36,7 @@ int main(int argc, char *argv[])
 	config[0] = (double)atoi(argv[3]);
 
 	char * scheme;
+	printf("Scheme: %s\n",argv[4]);
 	config[9] = (double)strtol(argv[4], &scheme, 10);	
 	if (* scheme == '_')
 		scheme++;

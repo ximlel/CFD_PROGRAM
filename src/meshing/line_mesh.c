@@ -50,7 +50,7 @@ static int line_mesh(struct mesh_var * mv, int n_add)
 			
 			mv->cell_pt[k][0] = 2;
 			mv->cell_pt[k][1] = k;
-			mv->cell_pt[k][2] = mv->cell_pt[k][1] + 1;
+			mv->cell_pt[k][2] = k + 1;
 		}
 
 	mv->num_border[0] = 1;	

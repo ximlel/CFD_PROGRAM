@@ -29,8 +29,8 @@ struct cell_var {
 	double **n_x, **n_y, **n_z;
 	double **F_rho, **F_e, **F_gamma, **F_phi, **F_u, **F_v, **F_w;
 	double  *U_rho,  *U_e,  *U_gamma,  *U_phi,  *U_u,  *U_v,  *U_w;
-	double    *U_p,    *V_p,    *F_pc_x,    *F_pc_y;
-	double *dt_U_p, *dt_V_p, *dt_F_pc_x, *dt_F_pc_y;
+	double    **U_p,    **V_p,    **F_p_x,    **F_p_y, **RHO_p, **PHI_p, **gamma_p;
+	double **dt_U_p, **dt_V_p, **dt_F_p_x, **dt_F_p_y;
 	double *X_c, *Y_c, *Z_c;
 	double *vol, *c, *dist_p;
 	double *gradx_rho,   *grady_rho,   *gradz_rho;
@@ -49,7 +49,6 @@ struct i_f_var {
 	double F_rho, F_e, F_gamma, F_phi, F_u, F_v, F_w;
 	double U_rho, U_e, U_gamma, U_phi, U_u, U_v, U_w;
 	double   RHO,   P,   gamma,   PHI,   U,   V,   W;
-	double       dt_p,                dt_u;
 	double length;
 	double d_rho;
 	double d_phi;

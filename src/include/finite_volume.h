@@ -13,11 +13,16 @@ void cell_centroid(struct cell_var * cv, const struct mesh_var mv);
 void slope_limiter(struct cell_var * cv, const struct mesh_var mv, const struct flu_var FV);
 
 
+void cons_qty_copy_cv2ifv(struct i_f_var *ifv, struct cell_var cv, int c);
+void prim_var_copy_ifv2FV(struct i_f_var ifv, struct flu_var *FV, int c);
+void flux_copy_ifv2cv(struct i_f_var ifv, struct cell_var *cv, int k, int j);
+
+
+int fluid_var_update(struct flu_var *FV, struct cell_var cv);
 int interface_var_init
 (const struct cell_var cv, const struct mesh_var mv, struct i_f_var * ifv,
  struct i_f_var * ifv_R, const int k, const int j, const int i);
 double tau_calc(const struct cell_var cv, const struct mesh_var mv);
-int fluid_var_update(struct flu_var *FV, struct cell_var cv);
 
 
 void Roe_scheme(struct i_f_var * ifv, struct i_f_var * ifv_R);

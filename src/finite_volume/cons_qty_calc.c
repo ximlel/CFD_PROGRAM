@@ -63,7 +63,7 @@ int cons2prim(struct i_f_var * ifv)
 			if (isnan(ifv->PHI) || ifv->PHI < -0.1 || ifv->PHI > 1.0 + 0.1)//-100*eps
 				return 0;
 		}
-	if (isnan(ifv->RHO + ifv->U + ifv->P) || isinf(ifv->RHO + ifv->U + ifv->P) || ifv->RHO < -10*eps || ifv->P < -10*eps)
+	if (isnan(ifv->RHO + ifv->U + ifv->P) || isinf(ifv->RHO + ifv->U + ifv->P) || ifv->RHO < -100*eps || ifv->P < -100*eps)
 		return 0;
 
 	return 1;
@@ -94,15 +94,18 @@ void cons_qty_update(struct cell_var * cv, const struct mesh_var mv, const doubl
 							p_p=cp[k][j+2];
 							p_n=cp[k][j+1];
 						}
-					length = sqrt((mv.X[p_p] - mv.X[p_n])*(mv.X[p_p]-mv.X[p_n]) + (mv.Y[p_p] - mv.Y[p_n])*(mv.Y[p_p]-mv.Y[p_n]));
+					if (dim == 1)
+						length = cv->n_x[k][j];
+					else if (dim == 2)
+						length = sqrt((mv.X[p_p] - mv.X[p_n])*(mv.X[p_p]-mv.X[p_n]) + (mv.Y[p_p] - mv.Y[p_n])*(mv.Y[p_p]-mv.Y[p_n]));
 					
 					cv->U_rho[k] += - tau*cv->F_rho[k][j] * length / cv->vol[k];
-					cv->U_e[k]   += - tau*cv->F_e[k][j]   * length / cv->vol[k];
+					cv->U_e[k]   += - tau*cv->F_e[k][j]   * length / cv->vol[k];	
 					cv->U_u[k]   += - tau*cv->F_u[k][j]   * length / cv->vol[k];
 					if (dim > 1)
 						cv->U_v[k] += - tau*cv->F_v[k][j] * length / cv->vol[k];
 					if (dim > 2)
-						cv->U_w[k] += - tau*cv->F_w[k][j] * length / cv->vol[k];	
+						cv->U_w[k] += - tau*cv->F_w[k][j] * length / cv->vol[k];
 					if ((int)config[2] == 2)
 						cv->U_phi[k] += - tau*cv->F_phi[k][j] * length / cv->vol[k];
 					if(!isinf(config[60]))

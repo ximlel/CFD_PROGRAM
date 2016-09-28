@@ -118,14 +118,14 @@ static void minmod_limiter
  double * grad_W, double * W)
 {
 	const int num_cell = (int)config[3];
-	const double alpha = isinf(config[41]) ? 1.9 : config[41];
+	double alpha = isinf(config[41]) ? 1.9 : config[41];
 	int **cc = cv.cell_cell;
-	
+
 	int cell_R;
-	double grad_W_temp;
+	double grad_W_tmp;
 	for(int k = 0; k < num_cell; k++)
 		{
-			for(int j = 1; j <= 2; j++)
+			for(int j = 0; j < 2; j++)
 				{
 					if (cc[k][j] >= 0)
 						cell_R = cc[k][j];
@@ -136,15 +136,17 @@ static void minmod_limiter
 							fprintf(stderr, "No suitable boundary!\n");
 							exit(2);
 						}
-					grad_W_temp = (W[cell_R] - W[k]) / (cv.X_c[cell_R] - cv.X_c[k]);
-					if (grad_W_temp * grad_W[k] < 0.0)
+					grad_W_tmp = alpha*(W[cell_R] - W[k]) / (cv.X_c[cell_R] - cv.X_c[k]);
+
+					if (grad_W_tmp * grad_W[k] < 0.0)
 						{													
 							grad_W[k] = 0.0;
+							break;
 						}
 					else if (grad_W[k] > 0.0)
-						grad_W[k] = fmin(grad_W[k], grad_W_temp);
+						grad_W[k] = fmin(grad_W[k], grad_W_tmp);
 					else
-						grad_W[k] = fmax(grad_W[k], grad_W_temp);
+						grad_W[k] = fmax(grad_W[k], grad_W_tmp);
 				}
 		}
 }
@@ -152,21 +154,38 @@ static void minmod_limiter
 void slope_limiter(struct cell_var * cv, struct mesh_var mv, struct flu_var FV)
 {
 	const int dim = (int)config[0];
-
+	const int num_cell = (int)config[3];
+	
 	if (dim == 1)
 		{
-			if (isinf(config[31]))
+			if ((int)config[31] == 0)
 				{
+					for(int k = 0; k < num_cell; k++)
+						{
+							cv->gradx_rho[k] = (cv->RHO_p[k][1] - cv->RHO_p[k][0])/cv->vol[k];
+							cv->gradx_u[k]   = (cv->U_p[k][1]   - cv->U_p[k][0])  /cv->vol[k];
+							cv->gradx_e[k]   = (cv->F_p_x[k][1] - cv->F_p_x[k][0])/cv->vol[k];
+							if ((int)config[2] == 2)
+								cv->gradx_phi[k] = (cv->PHI_p[k][1] - cv->PHI_p[k][0])/cv->vol[k];
+						}
 					minmod_limiter(*cv, mv, cv->gradx_rho, FV.RHO);
 					minmod_limiter(*cv, mv, cv->gradx_e, FV.P);
 					minmod_limiter(*cv, mv, cv->gradx_u, FV.U);
 					if ((int)config[2] == 2)
 						minmod_limiter(*cv, mv, cv->gradx_phi, FV.PHI);
 				}
-			else
-				{									
+			else if ((int)config[31] == 1)
+				{
+					for(int k = 0; k < num_cell; k++)
+						{
+							cv->gradx_rho[k] = (cv->RHO_p[k][1] - cv->RHO_p[k][0])/cv->vol[k];
+							cv->gradx_u[k]   = (cv->RHO_p[k][1]*cv->U_p[k][1] - cv->RHO_p[k][0]*cv->U_p[k][0])/cv->vol[k];
+							cv->gradx_e[k]   = ((cv->F_p_x[k][1]/(cv->gamma_p[k][1]-1.0) + 0.5*cv->RHO_p[k][1]*cv->U_p[k][1]*cv->U_p[k][1]) - (cv->F_p_x[k][0]/(cv->gamma_p[k][0]-1.0) + 0.5*cv->RHO_p[k][0]*cv->U_p[k][0]*cv->U_p[k][0]))/cv->vol[k];
+							if ((int)config[2] == 2)
+								cv->gradx_phi[k] = (cv->RHO_p[k][1]*cv->PHI_p[k][1] - cv->RHO_p[k][0]*cv->PHI_p[k][0])/cv->vol[k];
+						}
 					minmod_limiter(*cv, mv, cv->gradx_rho, cv->U_rho);
-					minmod_limiter(*cv, mv, cv->gradx_e, cv->U_e);
+					minmod_limiter(*cv, mv, cv->gradx_e, cv->U_e);	
 					minmod_limiter(*cv, mv, cv->gradx_u, cv->U_u);
 					if ((int)config[2] == 2)
 						minmod_limiter(*cv, mv, cv->gradx_phi, cv->U_phi);
@@ -174,7 +193,7 @@ void slope_limiter(struct cell_var * cv, struct mesh_var mv, struct flu_var FV)
 		}
 	else if (dim == 2)
 		{
-			if (isinf(config[31]))
+			if ((int)config[31] == 0)
 				{									
 					lsq_limiter(*cv, mv, cv->gradx_rho, cv->grady_rho, FV.RHO);
 					lsq_limiter(*cv, mv, cv->gradx_e, cv->grady_e, FV.P);
@@ -183,14 +202,9 @@ void slope_limiter(struct cell_var * cv, struct mesh_var mv, struct flu_var FV)
 					if ((int)config[2] == 2)
 						lsq_limiter(*cv, mv, cv->gradx_phi, cv->grady_phi, FV.PHI);
 				}
-			else
+			else if ((int)config[31] == 1)
 				{
-					lsq_limiter(*cv, mv, cv->gradx_rho, cv->grady_rho, cv->U_rho);
-					lsq_limiter(*cv, mv, cv->gradx_e, cv->grady_e, cv->U_e);
-					lsq_limiter(*cv, mv, cv->gradx_u, cv->grady_u, cv->U_u);
-					lsq_limiter(*cv, mv, cv->gradx_v, cv->grady_v, cv->U_v);
-					if ((int)config[2] == 2)
-						lsq_limiter(*cv, mv, cv->gradx_phi, cv->grady_phi, cv->U_phi);
+					
 				}
 		}
 }

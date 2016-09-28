@@ -11,50 +11,65 @@
 
 static void cell_pt_clockwise(struct mesh_var *mv)
 {
+	const int dim = (int)config[0];
 	const int num_cell = mv->num_ghost + (int)config[3];
 	const double *X = mv->X, *Y = mv->Y;
 	int **cp = mv->cell_pt;
 	int p_p, p, p_n;
 
-
-	int X_max, n_max;
-	for(int k = 0; k < num_cell; k++)
-		{
-			n_max = 1;
-			p = cp[k][n_max];
-			X_max = X[p];
-			
-			for(int j = 2; j <= cp[k][0]; j++)
-				{
-					n_max = X[cp[k][j]] > X_max ? j : n_max;
-					p = cp[k][n_max];
-					X_max = X[p];
-				}
-
-			if(n_max == cp[k][0]) 
-				{
-					p_p=cp[k][1];
-					p_n=cp[k][n_max-1];
-				}
-			else if(n_max == 1)
-				{
-					p_p=cp[k][n_max+1];
-					p_n=cp[k][cp[k][0]];
-				}
-			else
-				{
-					p_p=cp[k][n_max+1];
-					p_n=cp[k][n_max-1];
-				}
-
-			if ((X[p_p] - X[p])*(Y[p_n] - Y[p]) - (Y[p_p] - Y[p])*(X[p_n] - X[p]) < 0.0)
-				for(int j = 1, temp; j < cp[k][0]/2; j++)
+	int X_max, n_max, tmp;
+	if (dim == 1)
+		for(int k = 0; k < num_cell; k++)
+			{
+				if (cp[k][0] != 2)
 					{
-						temp = cp[k][j];
-						cp[k][j] = cp[k][cp[k][0]+1-j];
-						cp[k][cp[k][0]+1-j] = temp;
-					}			
-		}
+						fprintf(stderr, "Not only two point in one cell in 1D case!\n");
+						exit(2);
+					}
+				if (X[cp[k][2]] - X[cp[k][1]] < 0.0)
+					{
+						tmp = cp[k][1];
+						cp[k][2] = cp[k][1];
+						cp[k][1] = tmp;
+					}	
+			}
+	else if (dim == 2)
+		for(int k = 0; k < num_cell; k++)
+			{
+				n_max = 1;
+				p = cp[k][n_max];
+				X_max = X[p];			
+				for(int j = 2; j <= cp[k][0]; j++)
+					{
+						n_max = X[cp[k][j]] > X_max ? j : n_max;
+						p = cp[k][n_max];
+						X_max = X[p];
+					}
+
+				if(n_max == cp[k][0]) 
+					{
+						p_p=cp[k][1];
+						p_n=cp[k][n_max-1];
+					}
+				else if(n_max == 1)
+					{
+						p_p=cp[k][n_max+1];
+						p_n=cp[k][cp[k][0]];
+					}
+				else
+					{
+						p_p=cp[k][n_max+1];
+						p_n=cp[k][n_max-1];
+					}
+			
+				if ((X[p_p]-X[p])*(Y[p_n]-Y[p]) - (Y[p_p]-Y[p])*(X[p_n]-X[p]) < 0.0)
+					for(int j = 1; j < cp[k][0]/2; j++)
+						{
+							tmp = cp[k][j];
+							cp[k][j] = cp[k][cp[k][0]+1-j];
+							cp[k][cp[k][0]+1-j] = tmp;
+						}			
+			}
 }
 
 
@@ -130,8 +145,7 @@ struct mesh_var mesh_load(const char *example, const char *mesh_name)
 				}
 		}
 
-	if (dim == 2)
-		cell_pt_clockwise(&mv);
+	cell_pt_clockwise(&mv);
 	
 	return mv;
 }

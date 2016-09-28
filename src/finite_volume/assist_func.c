@@ -1,30 +1,11 @@
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
 
-
 #include "../include/var_struc.h"
 #include "../include/finite_volume.h"
 
-
-
-void cons_qty_copy(struct i_f_var *ifv, struct cell_var cv, int c)
-{
-	const int dim = (int)config[0];
-	
-	ifv->U_rho = cv.U_rho[c];
-	ifv->U_gamma = cv.U_gamma[c];
-	ifv->U_e = cv.U_e[c];
-	ifv->U_u = cv.U_u[c];
-	if (dim > 1)
-		ifv->U_v = cv.U_v[c];
-	if (dim > 2)
-		ifv->U_w = cv.U_w[c];
-	if ((int)config[2] == 2)
-		ifv->U_phi = cv.U_phi[c];
-}
 
 
 int fluid_var_update(struct flu_var *FV, struct cell_var cv)
@@ -35,24 +16,13 @@ int fluid_var_update(struct flu_var *FV, struct cell_var cv)
 	
 	for(int k = 0; k < num_cell; k++)
 		{
-			cons_qty_copy(&ifv, cv, k);
-			
+			cons_qty_copy_cv2ifv(&ifv, cv, k);			
 			if(cons2prim(&ifv) == 0)
 				{
-					fprintf(stderr, "Wrong in cons var to prim var!\n");
+					fprintf(stderr, "Wrong in copying cons_var to prim_var!\n");
 					return 0;
 				}
-
-			FV->RHO[k] = ifv.RHO;
-			FV->P[k]   = ifv.P;
-			FV->U[k]   = ifv.U;
-			if (dim > 1)
-				FV->V[k] = ifv.V;
-			if (dim > 2)
-				FV->W[k] = ifv.W;
-			if ((int)config[2] == 2)
-				FV->PHI[k] = ifv.PHI;
-			FV->gamma[k] = ifv.gamma;
+			prim_var_copy_ifv2FV(ifv, FV, k);
 		}
 	return 1;
 }
@@ -63,7 +33,7 @@ static int order2_i_f_var_init(const struct cell_var cv, struct i_f_var * ifv, c
 	const int dim = (int)config[0];	
 	const double n_x = ifv->n_x, n_y = ifv->n_y, n_z = ifv->n_z;
 	const double delta_x = ifv->delta_x, delta_y = ifv->delta_y, delta_z = ifv->delta_z;
-												
+
 	ifv->d_rho  = cv.gradx_rho[k]*n_x;
 	ifv->d_e    = cv.gradx_e[k]  *n_x;
 	ifv->d_u    = cv.gradx_u[k]  *n_x;
@@ -74,7 +44,7 @@ static int order2_i_f_var_init(const struct cell_var cv, struct i_f_var * ifv, c
 			ifv->d_rho += cv.grady_rho[k]*n_y;
 			ifv->d_e   += cv.grady_e[k]  *n_y;
 			ifv->d_u   += cv.grady_u[k]  *n_y;
-			ifv->d_v    = cv.gradx_v[k]  *n_x     + cv.grady_v[k]*n_y;
+			ifv->d_v    = cv.gradx_v[k]  *n_x + cv.grady_v[k]*n_y;
 			if ((int)config[2] == 2)
 				ifv->d_phi += cv.grady_phi[k]*n_y;
 		}
@@ -84,15 +54,15 @@ static int order2_i_f_var_init(const struct cell_var cv, struct i_f_var * ifv, c
 			ifv->d_e   += cv.gradz_e[k]  *n_z;
 			ifv->d_u   += cv.gradz_u[k]  *n_z;
 			ifv->d_v   += cv.gradz_v[k]  *n_z;
-			ifv->d_w    = cv.gradx_w[k]  *n_x     + cv.grady_w[k]*n_y     + cv.gradz_w[k]*n_z;
+			ifv->d_w    = cv.gradx_w[k]  *n_x + cv.grady_w[k]*n_y + cv.gradz_w[k]*n_z;
 			if ((int)config[2] == 2)
 				ifv->d_phi += cv.gradz_phi[k]*n_z;
 		}
 
-	if(cons2prim(ifv) == 0)
+	if (cons2prim(ifv) == 0)
 		{
 			fprintf(stderr, "Error happens on primitive variable!\n");
-			return -1;
+			return 0;
 		}
 	if ((int)config[31] == 0)
 		{					
@@ -125,7 +95,7 @@ static int order2_i_f_var_init(const struct cell_var cv, struct i_f_var * ifv, c
 		}
 	else if ((int)config[31] == 1)
 		{
-			ifv->d_u = (ifv->d_u - ifv->U*ifv->d_rho)/ifv->RHO;	
+			ifv->d_u = (ifv->d_u - ifv->U*ifv->d_rho)/ifv->RHO;
 			ifv->d_p = (ifv->d_e - 0.5*ifv->d_rho*ifv->U*ifv->U - ifv->RHO*ifv->U*ifv->d_u) * (ifv->gamma-1.0);	
 			if (dim > 1)
 				{
@@ -166,11 +136,10 @@ static int order2_i_f_var_init(const struct cell_var cv, struct i_f_var * ifv, c
 					if ((int)config[2] == 2)
 						ifv->U_phi += cv.gradz_phi[k]*delta_z;				
 				}
-
 			if(cons2prim(ifv) == 0)
 				{
 					fprintf(stderr, "Error happens on primitive variable!\n");
-					return -1;
+					return 0;
 				}
 		}
 	
@@ -195,7 +164,7 @@ static int order2_i_f_var0(struct i_f_var * ifv)
 	if(cons2prim(ifv) == 0)
 		{
 			fprintf(stderr, "Error happens on primitive variable!\n");
-			return -1;
+			return 0;
 		}
 	
 	return 1;
@@ -223,16 +192,20 @@ int interface_var_init
 			p_p=cp[k][j+2];
 			p_n=cp[k][j+1];
 		}
-	if (dim == 2)
-		ifv->length = sqrt((mv.X[p_p] - mv.X[p_n])*(mv.X[p_p] - mv.X[p_n]) + (mv.Y[p_p] - mv.Y[p_n])*(mv.Y[p_p] - mv.Y[p_n]));
 
-	ifv->n_x = cv.n_x[k][j];
-	if (dim > 1)	
-		ifv->n_y = cv.n_y[k][j];
+	if (dim == 1)
+		ifv->n_x = 1.0;
+	if (dim > 1)
+		{
+			ifv->n_x = cv.n_x[k][j];
+			ifv->n_y = cv.n_y[k][j];
+		}
 	if (dim > 2)
 		ifv->n_z = cv.n_z[k][j];
+		if (dim == 2)
+		ifv->length = sqrt((mv.X[p_p] - mv.X[p_n])*(mv.X[p_p] - mv.X[p_n]) + (mv.Y[p_p] - mv.Y[p_n])*(mv.Y[p_p] - mv.Y[p_n]));
 
-	cons_qty_copy(ifv, cv, k);
+	cons_qty_copy_cv2ifv(ifv, cv, k);
 	
 	if (order == 2)
 		{
@@ -242,18 +215,14 @@ int interface_var_init
 				{					
 					ifv->delta_x = 0.5*(mv.X[p_p] + mv.X[p_n]) - cv.X_c[k];
 					ifv->delta_y = 0.5*(mv.Y[p_p] + mv.Y[p_n]) - cv.Y_c[k];
-				}
-			
-			if(order2_i_f_var_init(cv, ifv, k) == -1)			
+				}			
+			if(order2_i_f_var_init(cv, ifv, k) == 0)			
 				{
 					fprintf(stderr, "Error happens on primitive variable!\n");
-					return -1;
+					return 0;
 				}
-
 		}
-	
-	int cR; //cell_right
-	
+		
 	ifv_R->n_x = ifv->n_x;
 	if (dim > 1)
 		{
@@ -263,10 +232,11 @@ int interface_var_init
 	if (dim > 2)
 		ifv_R->n_z = ifv->n_z;
 	
+	int cR; //cell_right	
 	if (cc[k][j] >= 0)
 		{
 			cR = cc[k][j];
-			cons_qty_copy(ifv_R, cv, cR);			
+			cons_qty_copy_cv2ifv(ifv_R, cv, cR);			
 
 			if (order == 2)
 				{
@@ -277,32 +247,32 @@ int interface_var_init
 							ifv_R->delta_x = 0.5*(mv.X[p_p] + mv.X[p_n]) - cv.X_c[cR];
 							ifv_R->delta_y = 0.5*(mv.Y[p_p] + mv.Y[p_n]) - cv.Y_c[cR];
 						}
-					if(order2_i_f_var_init(cv, ifv_R, cR) == -1)
+					if(order2_i_f_var_init(cv, ifv_R, cR) == 0)
 						{
 							fprintf(stderr, "Error happens on primitive variable!\n");
-							return -1;
+							return 0;
 						}
 				}
 		}
 	else if (cc[k][j] == -1)//initial boundary condition.		
 		{
-			cons_qty_copy(ifv_R, cv, k);
+			if (i > 0)
+				return -1;
+			cons_qty_copy_cv2ifv(ifv_R, cv, k);
 
 			if (order == 2)
-				if(order2_i_f_var0(ifv_R) == -1)
+				if(order2_i_f_var0(ifv_R) == 0)
 					{
 						fprintf(stderr, "Error happens on primitive variable!\n");
-						return -1;
+						return 0;
 					}
-			if (i > 0)
-				return 0;
 		}
 	else if (cc[k][j] == -2)//reflecting boundary condition.
 		{
 			if(cons2prim(ifv) == 0)
 				{
 					fprintf(stderr, "Error happens on primitive variable!\n");
-					return -1;
+					return 0;
 				}
 			ifv->F_rho = 0.0;
 			ifv->F_u = ifv->P*ifv->n_x;
@@ -315,24 +285,23 @@ int interface_var_init
 				ifv->F_gamma = 0.0;
 			if ((int)config[2] == 2)
 				ifv->F_phi = 0.0;
-			return 0;
+			return -2;
 		}
 	else if (cc[k][j] == -3)//prescribed boundary condition.
 		{
-			cons_qty_copy(ifv_R, cv, k);			
+			cons_qty_copy_cv2ifv(ifv_R, cv, k);			
 
 			if (order == 2)
-				if(order2_i_f_var0(ifv_R) == -1)
+				if(order2_i_f_var0(ifv_R) == 0)
 					{
 						fprintf(stderr, "Error happens on primitive variable!\n");
-						return -1;
+						return 0;
 					}
-
 		}		
 	else
 		{
 			printf("No suitable boundary!\n");
-			return -1;
+			return 0;
 		}
 
 	if (order == 1)
@@ -340,41 +309,16 @@ int interface_var_init
 			if(cons2prim(ifv) == 0)
 				{
 					fprintf(stderr, "Error happens on primitive variable!\n");
-					return -1;
+					return 0;
 				}
 			if(cons2prim(ifv_R) == 0)
 				{
 					fprintf(stderr, "Error happens on primitive variable!\n");
-					return -1;
+					return 0;
 				}
 		}
 
 	return 1;
-}
-
-
-void flux_copy(struct i_f_var ifv, struct cell_var *cv, int k, int j)
-{
-	const int dim = (int)config[0];
-	
-	cv->F_rho[k][j] = ifv.F_rho;
-	cv->F_e[k][j]   = ifv.F_e;
-	cv->F_u[k][j]   = ifv.F_u;
-	if (dim > 1)
-		cv->F_v[k][j] = ifv.F_v;
-	if (dim > 2)
-		cv->F_w[k][j] = ifv.F_w;
-	if ((int)config[2] == 2)
-		cv->F_phi[k][j] = ifv.F_phi;
-	if (!isinf(config[60]))
-		cv->F_gamma[k][j] = ifv.F_gamma;
-
-	cv->RHO_p[k][j] = ifv.RHO;
-	cv->U_p[k][j]   = ifv.U;
-	cv->F_p_x[k][j] = ifv.P;
-	if ((int)config[2] == 2)
-		cv->PHI_p[k][j] = ifv.PHI;
-	cv->gamma_p[k][j] = ifv.gamma;
 }
 
 
@@ -402,9 +346,9 @@ double tau_calc(const struct cell_var cv, const struct mesh_var mv)
 			for(int j = 0; j < cp[k][0]; ++j)
 				{
 					ivi = interface_var_init(cv, mv, &ifv, &ifv_R, k, j, 0);
-					if (ivi == 0)
+					if (ivi < 0)
 						;
-					else if(ivi == -1)
+					else if(ivi == 0)
 						return -1.0;
 					else if (dim == 1)
 						{

@@ -55,8 +55,9 @@ static void config_check()
 	config[8] = isinf(config[8]) ? 0 : config[8];
 	config[9] = isinf(config[9]) ? 1 : config[9];
 	if (dim == 1)
-		config[31] == 1;
-	config[41] = isinf(config[41]) ? 1.9 : config[41];
+		config[31] = isinf(config[31]) ? 0 : config[31];
+	else if (dim == 2)
+		config[31] = isinf(config[31]) ? 0 : config[31];
 }
 
 

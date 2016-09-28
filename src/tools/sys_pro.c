@@ -57,7 +57,7 @@ void init_mem(double * p[], int n, int * cell_pt[])
 {
 	for(int k = 0; k < n; ++k)
 		{
-			p[k] = malloc(cell_pt[k][0] * sizeof(double));
+			p[k] = calloc(cell_pt[k][0], sizeof(double));
 			if(p[k] == NULL)
 				{
 					printf("Initialize memory fail!\n");

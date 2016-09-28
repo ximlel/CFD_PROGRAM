@@ -25,7 +25,7 @@
 
 #define CV_INIT_MEM(v, n)												\
 	do {																\
-		cv.v = malloc((n) * sizeof(double));							\
+		cv.v = calloc(n, sizeof(double));							\
 		if(cv.v == NULL)												\
 			{															\
 				fprintf(stderr, "Not enough memory in cell var init!\n"); \
@@ -149,6 +149,29 @@ struct cell_var cell_mem_init(const struct mesh_var mv, struct flu_var * FV)
 						CV_INIT_MEM(gradz_gamma, num_cell_ghost);	
 				}
 		}
+	
+
+	CP_INIT_MEM(U_p, num_cell_ghost);
+	CP_INIT_MEM(F_p_x, num_cell);
+	if (dim > 1)
+		{					
+			CP_INIT_MEM(V_p, num_cell_ghost);
+			CP_INIT_MEM(F_p_y, num_cell);
+		}
+	if (order > 1)
+		{
+			CP_INIT_MEM(RHO_p, num_cell);
+			CP_INIT_MEM(PHI_p, num_cell);
+			CP_INIT_MEM(gamma_p, num_cell);
+	
+			CP_INIT_MEM(dt_U_p, num_cell_ghost);
+			CP_INIT_MEM(dt_F_p_x, num_cell);
+			if (dim >1)
+				{									
+					CP_INIT_MEM(dt_V_p, num_cell_ghost);
+					CP_INIT_MEM(dt_F_p_y, num_cell);	
+				}
+		}
 
 	return cv;
 	
@@ -224,9 +247,11 @@ void cell_rel(struct cell_var * cv, const struct mesh_var mv)
 								p_p = cp[k][2];
 								p_n = cp[k][1];
 							}						
-						length = fabs(mv.X[p_p] - mv.X[p_n]);
-						cv->n_x[k][j] = (mv.X[p_p] - mv.X[p_n]) / length;
-				
+						if(mv.X[p_p] > mv.X[p_n])
+							cv->n_x[k][j] = -1.0;
+						else
+							cv->n_x[k][j] =  1.0;
+
 						cell_rec = 0;
 						ts = 1;
 						while (ts <= MAX(num_cell-k-1, k))
@@ -239,36 +264,20 @@ void cell_rel(struct cell_var * cv, const struct mesh_var mv)
 									ts = -ts + 1;
 								if (i < 0 || i >= num_cell)
 									continue;
-								
-								for(l = 0; l < 2; l++)
+										
+								if (p_n == cp[i][1] || p_n == cp[i][2])
 									{
-										if(l == 1) 
-											{
-												p2_p = cp[i][1];
-												p2_n = cp[i][2];
-											}				  
-										else
-											{
-												p2_p = cp[i][2];
-												p2_n = cp[i][1];
-											}		
-										if(p_p == p2_p || p_p == p2_n)
-											{
-												cv->cell_cell[k][j] = i;
-												cell_rec = 1;
-												break;
-											}
-									}
-								if (cell_rec)
-									break;
+										cv->cell_cell[k][j] = i;
+										cell_rec = 1;
+										break;
+									}									
 							}				
 						if (cell_rec)
 							continue;
 						
 						for(i = 0; i < 2; i++)
-							{				
-								p2_p = mv.border_pt[i];
-								if(p_p == p2_p)
+							{
+								if(p_n == mv.border_pt[i])
 									{
 										cv->cell_cell[k][j] = mv.border_cond[i];
 										cell_rec = 1;

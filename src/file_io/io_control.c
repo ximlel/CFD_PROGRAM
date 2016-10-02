@@ -19,20 +19,14 @@ static void config_check()
 			fprintf(stderr, "The total time or the maximum number of time steps must be setted!\n");
 			exit(2);
 		}
-	
-	if(isinf(config[2]))
-		config[2] = 1;
-	else if(config[2] < 0.0)
-		{
-			fprintf(stderr, "The number of phases must > 0!\n");
-			exit(2);
-		}
+
+	config[2] = isinf(config[2]) ? 1 : config[9];	
 
 	if(isinf(config[4]))
 		config[4] = EPS;
-	else if(config[4] < 0.0 || config[4] > 0.1)
+	else if(config[4] < 0.0 || config[4] > 0.01)
 		{
-			fprintf(stderr, "eps(%lf) should in (0, 0.1)!\n", config[4]);
+			fprintf(stderr, "eps(%lf) should in (0, 0.01)!\n", config[4]);
 			exit(2);
 		}
 	
@@ -49,7 +43,7 @@ static void config_check()
 			if (dim == 1)
 				config[7] = 0.9;
 			else if (dim == 2)
-				config[7] = 0.45;
+ 				config[7] = 0.45;
 		}
 
 	config[8] = isinf(config[8]) ? 0 : config[8];
@@ -58,6 +52,8 @@ static void config_check()
 		config[31] = isinf(config[31]) ? 0 : config[31];
 	else if (dim == 2)
 		config[31] = isinf(config[31]) ? 0 : config[31];
+
+	config[61] = isinf(config[61]) ? 0 : config[61];
 }
 
 

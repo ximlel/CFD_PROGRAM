@@ -40,6 +40,7 @@ void prim_var_copy_ifv2FV(struct i_f_var ifv, struct flu_var *FV, int c)
 void flux_copy_ifv2cv(struct i_f_var ifv, struct cell_var *cv, int k, int j)
 {
 	const int dim = (int)config[0];
+	const int order = (int)config[9];
 	
 	cv->F_rho[k][j] = ifv.F_rho;
 	cv->F_e[k][j]   = ifv.F_e;
@@ -53,9 +54,11 @@ void flux_copy_ifv2cv(struct i_f_var ifv, struct cell_var *cv, int k, int j)
 	if (!isinf(config[60]))
 		cv->F_gamma[k][j] = ifv.F_gamma;
 
-	cv->RHO_p[k][j] = ifv.RHO;
 	cv->U_p[k][j]   = ifv.U;
+	if (dim > 1)
+		cv->V_p[k][j] = ifv.V;
 	cv->F_p_x[k][j] = ifv.P;
+	cv->RHO_p[k][j] = ifv.RHO;	
 	if ((int)config[2] == 2)
 		cv->PHI_p[k][j] = ifv.PHI;
 	cv->gamma_p[k][j] = ifv.gamma;

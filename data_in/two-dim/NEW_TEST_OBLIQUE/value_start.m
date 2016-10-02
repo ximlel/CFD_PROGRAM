@@ -3,9 +3,9 @@ column=200;
 shock=50;
 
 
-qt_L=1 
-qt_R=0
-qn=0.5
+qt_L=4 
+qt_R=3
+qn=0
 
 rho_R=2
 u_R=qn-qt_R

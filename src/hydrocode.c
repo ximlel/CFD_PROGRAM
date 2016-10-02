@@ -44,8 +44,8 @@ int main(int argc, char *argv[])
 		{
 			printf("No order!\n");
 			exit(2);
-		}
-
+		}	
+	
 	struct flu_var FV = flu_conf_load(argv[1]);
 
 	struct mesh_var mv= mesh_load(argv[1], argv[5]);
@@ -53,7 +53,17 @@ int main(int argc, char *argv[])
 
 	printf("Output: %s.\n", argv[2]);
 
-
+	char * config_pt;
+	for (int i = 6, j; i < argc; i++)
+		{
+			j = strtol(argv[i], &config_pt, 10);
+			if (* config_pt == '=')
+				{							
+					config_pt++;
+					config[j] = strtod(config_pt, NULL);
+				}
+		}
+	
 	file_write_TEC(FV, mv, argv[2], 0.0, (int)config[0]);	
 
 	

@@ -16,14 +16,14 @@ void Roe_scheme(struct i_f_var * ifv, struct i_f_var * ifv_R)
 	double lambda_max;
 	if (dim == 1)
 		{			
-			ROE_solver(F, ifv->gamma, ifv->P, ifv->RHO, ifv->U, ifv_R->P, ifv_R->RHO, ifv_R->U, &lambda_max, delta);
+			Roe_solver(F, ifv->gamma, ifv->P, ifv->RHO, ifv->U, ifv_R->P, ifv_R->RHO, ifv_R->U, &lambda_max, delta);
 			ifv->F_rho = F[0];
 			ifv->F_u   = F[1];
 			ifv->F_e   = F[2];
 		}
 	else if (dim == 2)
 		{				
-			ROE_2D_solver(F, ifv->gamma, ifv->P, ifv->RHO, ifv->U, ifv->V, ifv->n_x, ifv->n_y, ifv_R->P, ifv_R->RHO, ifv_R->U, ifv_R->V, &lambda_max, delta);
+			Roe_2D_solver(F, ifv->gamma, ifv->P, ifv->RHO, ifv->U, ifv->V, ifv->n_x, ifv->n_y, ifv_R->P, ifv_R->RHO, ifv_R->U, ifv_R->V, &lambda_max, delta);
 			ifv->F_rho = F[0];
 			ifv->F_u   = F[1];
 			ifv->F_v   = F[2];
@@ -102,6 +102,15 @@ void Riemann_exact_scheme(struct i_f_var * ifv, struct i_f_var * ifv_R)
 		}
 	if (!isinf(config[60]))
 		ifv->F_gamma = ifv->F_rho*gamma;
+
+	ifv->RHO = rho_mid;
+	ifv->U   = u_mid;
+	if (dim > 1)
+		ifv->V   = v_mid;
+	ifv->P   = p_mid;
+	if ((int)config[2] == 2)
+		ifv->PHI = phi_mid;
+	ifv->gamma = gamma;
 }
 
 

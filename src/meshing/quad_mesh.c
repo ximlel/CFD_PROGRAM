@@ -13,7 +13,7 @@
 
 
 
-static int quad_mesh(struct mesh_var * mv, int n_x_add, int n_y_add)
+static void quad_mesh(struct mesh_var * mv, int n_x_add, int n_y_add)
 {
 	if(isinf(config[13]) || isinf(config[14]))
 		{
@@ -71,8 +71,7 @@ static int quad_mesh(struct mesh_var * mv, int n_x_add, int n_y_add)
 	const int num_border = 2*n_x + 2*n_y;
 	mv->num_border[1] = num_border;	
 	mv->border_pt = malloc((num_border+1) * sizeof(int));	
-	mv->border_cond = malloc(num_border * sizeof(int));
-	if(mv->border_pt == NULL || mv->border_cond == NULL)
+	if(mv->border_pt == NULL)
 		{
 			printf("Not enough memory in quadrilateral mesh constructed!\n");
 			goto return_0;
@@ -87,8 +86,6 @@ static int quad_mesh(struct mesh_var * mv, int n_x_add, int n_y_add)
 		mv->border_pt[k] = mv->border_pt[k-1] - n_x - 1;
 	mv->border_pt[num_border] = 0;
 
-	return 1;
-
  return_0:
 	free(mv->X);
 	mv->X = NULL;
@@ -96,8 +93,6 @@ static int quad_mesh(struct mesh_var * mv, int n_x_add, int n_y_add)
 	mv->Y = NULL;	
 	free(mv->border_pt);
 	mv->border_pt = NULL;
-	free(mv->border_cond);
-	mv->border_cond = NULL;	
 	for(k = 0; k < num_cell; k++)
 		{
 			if (mv->cell_pt[k] == NULL)
@@ -107,15 +102,13 @@ static int quad_mesh(struct mesh_var * mv, int n_x_add, int n_y_add)
 		}
 	free(mv->cell_pt);
 	mv->cell_pt = NULL;	
-	return 0;	
+	exit(5);	
 }
 
 static void quad_border_cond
 (struct mesh_var * mv, int n_x_add, int n_y_add,
  int down, int right, int up, int left)
 {
-	const int n_x = (int)config[13] + n_x_add, n_y = (int)config[14] + n_y_add;
-
 	if (down >= 0 || right >= 0 || up >= 0|| left >= 0)
 		{
 			fprintf(stderr, "Input wrong boundary condition in quadrilateral mesh!\n");
@@ -136,20 +129,29 @@ static void quad_border_cond
 			fprintf(stderr, "Periodic boundary condition error!\n");
 			exit(2);
 		}
-
-
+	
+	const int n_x = (int)config[13] + n_x_add, n_y = (int)config[14] + n_y_add;
 	const int num_cell = n_x * n_y;
 	const int num_border = mv->num_border[1];
-	
-	mv->peri_cell = malloc(num_cell * sizeof(int));
-	if(mv->peri_cell == NULL)
-		{
-			printf("Not enough memory in quad periodic boundary constructed!\n");
-			exit(5);
-		}
 	int k;
-	for(k = 0; k < num_cell; k++)
-		mv->peri_cell[k] = -1;
+	
+	mv->border_cond = malloc(num_border * sizeof(int));
+	if(mv->border_cond == NULL)
+		{
+			printf("Not enough memory in quadrilateral boundary constructed!\n");
+			goto return_0;
+		}	
+	if(mv->num_ghost > 0)
+		{					
+			mv->peri_cell = malloc(num_cell * sizeof(int));
+			if(mv->peri_cell == NULL)
+				{
+					printf("Not enough memory in quadrilateral periodic boundary constructed!\n");
+					goto return_0;
+				}
+			for(k = 0; k < num_cell; k++)
+				mv->peri_cell[k] = -1;
+		}
 	
 	for(k = 0; k < n_x; k++)
 		{
@@ -214,49 +216,46 @@ static void quad_border_cond
 
 	if(mv->num_ghost > 0)
 		period_cell_modi(mv);
+
+ return_0:
+	free(mv->border_cond);
+	mv->border_cond = NULL;	
+	free(mv->peri_cell);
+	mv->peri_cell = NULL;	
 }
 
 void Sod_mesh(struct mesh_var * mv)
 {
 	const int n_x_a = 0, n_y_a = 0;
-	if (quad_mesh(mv, n_x_a, n_y_a) == 0)
-		exit(5);
-
+	quad_mesh(mv, n_x_a, n_y_a);
 	quad_border_cond(mv, n_x_a, n_y_a, -2, -3, -2, -3);
 }
 
 void Shear_mesh(struct mesh_var * mv)
 {	
 	const int n_x_a = 0, n_y_a = 0;
-	if (quad_mesh(mv, n_x_a, n_y_a) == 0)
-		exit(5);
-
+	quad_mesh(mv, n_x_a, n_y_a);
 	quad_border_cond(mv, n_x_a, n_y_a, -1, -3, -3, -3);
 }
 
 void free_mesh(struct mesh_var * mv)
 {		
 	const int n_x_a = 0, n_y_a = 0;	
-	if (quad_mesh(mv, n_x_a, n_y_a) == 0)
-		exit(5);
-
+	quad_mesh(mv, n_x_a, n_y_a);
 	quad_border_cond(mv, n_x_a, n_y_a, -3, -3, -3, -3);
 }
 
 void RMI_mesh(struct mesh_var * mv)
 {	
 	const int n_x_a = 2, n_y_a = 0;		
-	if (quad_mesh(mv, n_x_a, n_y_a) == 0)
-		exit(5);
-
+	quad_mesh(mv, n_x_a, n_y_a);
 	quad_border_cond(mv, n_x_a, n_y_a, -3, -7, -3, -7);
 }
 
 void cylinder_mesh(struct mesh_var * mv)
 {
 	const int n_x_a = 2, n_y_a = 0;
-	if (quad_mesh(mv, n_x_a, n_y_a) == 0)
-		exit(5);
+	quad_mesh(mv, n_x_a, n_y_a);
 	
 	const int n_x = (int)config[13] + n_x_a, n_y = (int)config[14] + n_y_a;
 	const double R = config[11]*n_y/M_PI*9.0/8.0;	
@@ -264,16 +263,14 @@ void cylinder_mesh(struct mesh_var * mv)
 		{
 			mv->X[k] = (R+(n_x-k%(n_x+1))*config[10])*cos(13.0/9.0*M_PI-(k/(n_x+1))*8.0/9.0*M_PI/n_y);
 			mv->Y[k] = (R+(n_x-k%(n_x+1))*config[10])*sin(13.0/9.0*M_PI-(k/(n_x+1))*8.0/9.0*M_PI/n_y);
-		}
-	
+		}	
 	quad_border_cond(mv, n_x_a, n_y_a, -3, -2, -3, -1);
 }
 
 void odd_even_mesh(struct mesh_var * mv)
 {
 	const int n_x_a = 0, n_y_a = 0;
-	if (quad_mesh(mv, n_x_a, n_y_a) == 0)
-		exit(5);
+	quad_mesh(mv, n_x_a, n_y_a);
 	
 	const int n_x = (int)config[13] + n_x_a, n_y = (int)config[14] + n_y_a;
 	for(int k = 0; k < (n_y+1); k++)
@@ -285,8 +282,7 @@ void odd_even_mesh(struct mesh_var * mv)
 void odd_even_periodic_mesh(struct mesh_var * mv)
 {
 	const int n_x_a = 2, n_y_a = 0;
-	if (quad_mesh(mv, n_x_a, n_y_a) == 0)
-		exit(5);
+	quad_mesh(mv, n_x_a, n_y_a);
 	
 	const int n_x = (int)config[13] + n_x_a, n_y = (int)config[14] + n_y_a;
 	for(int k = 0; k < (n_y+1); k++)
@@ -298,8 +294,7 @@ void odd_even_periodic_mesh(struct mesh_var * mv)
 void odd_even_inflow_mesh(struct mesh_var * mv)
 {
 	const int n_x_a = 0, n_y_a = 2;
-	if (quad_mesh(mv, n_x_a, n_y_a) == 0)
-		exit(5);
+	quad_mesh(mv, n_x_a, n_y_a);
 	
 	const int n_x = (int)config[13] + n_x_a, n_y = (int)config[14] + n_y_a;
 	for(int k = 0; k < (n_y+1); k++)
@@ -312,8 +307,7 @@ void rand_disturb_inflow_mesh(struct mesh_var * mv)
 {
 	const int n_x_a = 0, n_y_a = 2;
 
-	if (quad_mesh(mv, n_x_a, n_y_a) == 0)
-		exit(5);
+	quad_mesh(mv, n_x_a, n_y_a);
 
 	const int n_x = (int)config[13] + n_x_a, n_y = (int)config[14] + n_y_a;
 	srand((unsigned) time(NULL)); //seed--time.
@@ -332,8 +326,57 @@ void rand_disturb_inflow_mesh(struct mesh_var * mv)
 void oblique_periodic_mesh(struct mesh_var * mv)
 {
 	const int n_x_a = 0, n_y_a = 2;
-	if (quad_mesh(mv, n_x_a, n_y_a) == 0)
-		exit(5);
-
+	quad_mesh(mv, n_x_a, n_y_a);
 	quad_border_cond(mv, n_x_a, n_y_a, -70, -3, -70, -3);
+}
+
+
+static void quad_border_normal_velocity
+(struct mesh_var * mv, int n_x_add, int n_y_add,
+ double down, double right, double up, double left)
+{
+	const int n_x = (int)config[13] + n_x_add, n_y = (int)config[14] + n_y_add;
+	const int num_cell = n_x * n_y;
+	const int num_border = mv->num_border[1];
+	int k;
+	
+	mv->normal_v = malloc(num_border * sizeof(double));
+	if(mv->normal_v == NULL)
+		{
+			printf("Not enough memory in quadrilateral boundary constructed!\n");
+			goto return_0;
+		}
+
+	for(k = 0; k < n_x; k++)
+		{
+			mv->normal_v[k] = down;		
+		}
+	for(k = n_x; k < n_x+n_y; k++)
+		{
+			mv->normal_v[k] = right;
+		}
+	for(k = n_x + n_y; k < n_x*2 + n_y; k++)
+		{
+			mv->normal_v[k] = up;
+		}
+	for(k = n_x*2 + n_y; k < num_border; k++)
+		{			
+			mv->normal_v[k] = left;
+		}
+
+ return_0:
+	free(mv->normal_v);
+	mv->normal_v = NULL;	
+}
+
+void Saltzman_mesh_Lag(struct mesh_var * mv)
+{
+	const int n_x_a = 0, n_y_a = 0;
+	quad_mesh(mv, n_x_a, n_y_a);
+
+	for(int k = 0; k < mv->num_pt; k++)		
+		mv->X[k] += (0.1 - mv->Y[k])*sin(M_PI * mv->X[k]);
+	
+	quad_border_cond(mv, n_x_a, n_y_a, -2, -2, -2, -2);
+	quad_border_normal_velocity(mv, n_x_a, n_y_a, 0.0, 0.0, 0.0, -1.0);  	
 }

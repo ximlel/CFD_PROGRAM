@@ -63,7 +63,7 @@ struct i_f_var {
 //mesh
 struct mesh_var {
 	int num_pt, num_ghost, *cell_type, **cell_pt;
-	int num_border[10], *border_pt, *border_cond, *peri_cell;
+	int num_border[10], *border_pt, *border_cond, *peri_cell, *normal_v;
 	double *X, *Y, *Z;
 	void (*bc)(struct cell_var * cv, struct mesh_var mv, struct flu_var * FV, double t);
 };

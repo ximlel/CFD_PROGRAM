@@ -70,19 +70,23 @@ int cons2prim(struct i_f_var * ifv)
 }
 
 
-void cons_qty_update(struct cell_var * cv, const struct mesh_var mv, const double tau)
+void cons_qty_update
+(struct cell_var * cv, const struct mesh_var mv,
+ const struct flu_var FV, const double tau)
 {
 	const int dim = (int)config[0];
 	const int num_cell = (int)config[3];
 	int ** cp = mv.cell_pt;
 	
 	int p_p, p_n;
-	double length, gamma;
+	double length, gamma, flux_v_fix, length2;
+	int i;
 	for(int k = 0; k < num_cell; ++k)
 		{
+			flux_v_fix = 0.0;				
 			if(isinf(config[60]))
 				gamma = cv->U_gamma[k]/cv->U_rho[k];
-			for(int j = 0; j < cp[k][0]; ++j)
+			for(int j = 0; j < cp[k][0]; j++)
 				{
 					if(j == cp[k][0]-1) 
 						{
@@ -110,8 +114,36 @@ void cons_qty_update(struct cell_var * cv, const struct mesh_var mv, const doubl
 						cv->U_phi[k] += - tau*cv->F_phi[k][j] * length / cv->vol[k];
 					if(!isinf(config[60]))
 						cv->U_gamma[k] += - tau*cv->F_gamma[k][j] * length / cv->vol[k];
+					if ((int)config[61] == 1)
+						{													
+//							flux_v_fix += tau*length/cv->vol[k]*FV.RHO[k]*cv->RHO_p[k][j]*(cv->U_p[k][j]*cv->n_x[k][j]+cv->V_p[k][j]*cv->n_y[k][j])*((cv->U_p[k][j]-FV.U[k])*(cv->U_p[k][j]-FV.U[k])+(cv->V_p[k][j]-FV.V[k])*(cv->V_p[k][j]-FV.V[k]));
+							for (i = j+1; i < cp[k][0]; i++)
+								{
+									if(i == cp[k][0]-1) 
+										{
+											p_p=cp[k][1];
+											p_n=cp[k][i+1];
+										}				  
+									else
+										{
+											p_p=cp[k][i+2];
+											p_n=cp[k][i+1];
+										}
+									if (dim == 1)
+										length2 = cv->n_x[k][i];
+									else if (dim == 2)
+										length2 = sqrt((mv.X[p_p] - mv.X[p_n])*(mv.X[p_p]-mv.X[p_n]) + (mv.Y[p_p] - mv.Y[p_n])*(mv.Y[p_p]-mv.Y[p_n]));
+						
+//									flux_v_fix -= tau*length/cv->vol[k]*cv->RHO_p[k][j]*(cv->U_p[k][j]*cv->n_x[k][j]+cv->V_p[k][j]*cv->n_y[k][j])*tau*length2/cv->vol[k]*cv->RHO_p[k][i]*(cv->U_p[k][i]*cv->n_x[k][i]+cv->V_p[k][i]*cv->n_y[k][i])*((cv->U_p[k][j]-cv->U_p[k][i])*(cv->U_p[k][j]-cv->U_p[k][i])+(cv->V_p[k][j]-cv->V_p[k][i])*(cv->V_p[k][j]-cv->V_p[k][i]));
+								}
+
+flux_v_fix += tau*length/cv->vol[k]*cv->RHO_p[k][j]*(cv->U_p[k][j]*cv->n_x[k][j]+cv->V_p[k][j]*cv->n_y[k][j])*((cv->U_p[k][j]-FV.U[k])*(cv->U_p[k][j]-FV.U[k])+(cv->V_p[k][j]-FV.V[k])*(cv->V_p[k][j]-FV.V[k]))/2.0;
+
+						}
 				}
 			if(isinf(config[60]))
 				cv->U_gamma[k] = gamma*cv->U_rho[k];
+			
+			cv->U_e[k] += flux_v_fix;///cv->U_rho[k]/2.0;
 		}
 }

@@ -153,17 +153,17 @@ struct cell_var cell_mem_init(const struct mesh_var mv, struct flu_var * FV)
 
 	CP_INIT_MEM(U_p, num_cell_ghost);
 	CP_INIT_MEM(F_p_x, num_cell);
+	CP_INIT_MEM(RHO_p, num_cell);
+	if ((int)config[2] == 2)
+		CP_INIT_MEM(PHI_p, num_cell);
+	CP_INIT_MEM(gamma_p, num_cell);
 	if (dim > 1)
 		{					
 			CP_INIT_MEM(V_p, num_cell_ghost);
 			CP_INIT_MEM(F_p_y, num_cell);
 		}
 	if (order > 1)
-		{
-			CP_INIT_MEM(RHO_p, num_cell);
-			CP_INIT_MEM(PHI_p, num_cell);
-			CP_INIT_MEM(gamma_p, num_cell);
-	
+		{	
 			CP_INIT_MEM(dt_U_p, num_cell_ghost);
 			CP_INIT_MEM(dt_F_p_x, num_cell);
 			if (dim >1)

@@ -42,13 +42,12 @@ void finite_volume_scheme(struct flu_var *FV, const struct mesh_var mv, const ch
 	for(int i = 0; i < (int)config[5] && stop_step == 0; ++i)
 		{
 			start_clock = clock();
-			
+
+			fluid_var_update(FV, cv);			
 			if (order > 1)
 				{
 					if (el != 0 && i > 0)
 						cell_centroid(&cv, mv);
-					if ((int)config[31] == 0)
-						fluid_var_update(FV, cv);
 					if (mv.bc != NULL)
 						mv.bc(&cv, mv, FV, t_all);
 					if (!(dim == 1 && i == 0))
@@ -127,7 +126,7 @@ void finite_volume_scheme(struct flu_var *FV, const struct mesh_var mv, const ch
 						}					
 				}
 
-			cons_qty_update(&cv, mv, tau);			
+			cons_qty_update(&cv, mv, *FV, tau);			
 
 			DispPro(t_all*100.0/config[1], i);
 						

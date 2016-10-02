@@ -23,6 +23,11 @@ read
 #./hydrocode.out NEW_TEST_OBLIQUE NEW_TEST_OBLIQUE/NEW_TEST_OBLIQUE_Roe	2 1_Roe			oblique_periodic
 #./hydrocode.out NEW_TEST_OBLIQUE NEW_TEST_OBLIQUE/NEW_TEST_OBLIQUE	2 1_Riemann_exact	oblique_periodic
 #./hydrocode.out NEW_TEST_OBLIQUE NEW_TEST_OBLIQUE/NEW_TEST_OBLIQUE	2 2_GRP			oblique_periodic
+#./hydrocode.out NEW_TEST_OBLIQUE_SMALL NEW_TEST_OBLIQUE_SMALL/NEW_TEST_OBLIQUE_SMALL	2 1_Riemann_exact			oblique_periodic
+
+#./hydrocode.out NEW_TEST NEW_TEST/NEW_TEST_Roe	2 1_Roe			free
+./hydrocode.out NEW_TEST NEW_TEST/NEW_TEST	2 1_Riemann_exact	free
+#./hydrocode.out NEW_TEST_BIG NEW_TEST_BIG/NEW_TEST_BIG_Roe	2 1_Roe			free
 
 #./hydrocode.out Riemann_2D3_Quad Riemann_2D3_Quad/Riemann_2D3_Quad_Roe	2 1_Roe			free
 #./hydrocode.out Riemann_2D3_Quad Riemann_2D3_Quad/Riemann_2D3_Quad	2 1_Riemann_exact	free

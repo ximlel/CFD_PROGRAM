@@ -138,6 +138,8 @@ struct mesh_var mesh_load(const char *example, const char *mesh_name)
 				rand_disturb_inflow_mesh(&mv);
 			else if (strcmp(mesh_name,"oblique_periodic") == 0)
 				oblique_periodic_mesh(&mv);
+			else if (strcmp(mesh_name,"Saltzman") == 0)
+				Saltzman_mesh_Lag(&mv);
 			else
 				{
 					fprintf(stderr, "No mesh setting!\n");

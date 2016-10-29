@@ -33,7 +33,8 @@ int main(int argc, char *argv[])
 			config[i] = 1.0/0.0;
 
 	// Set dimension.
-	config[0] = (double)atoi(argv[3]);
+	const double dim = (double)atoi(argv[3]);
+	config[0] = dim;
 
 	char * scheme;
 	printf("Scheme: %s\n",argv[4]);
@@ -45,11 +46,10 @@ int main(int argc, char *argv[])
 			printf("No order!\n");
 			exit(2);
 		}	
-	
+
 	struct flu_var FV = flu_conf_load(argv[1]);
 
-	struct mesh_var mv= mesh_load(argv[1], argv[5]);
-	
+	struct mesh_var mv= mesh_load(argv[1], argv[5]);	
 
 	printf("Output: %s.\n", argv[2]);
 
@@ -64,14 +64,14 @@ int main(int argc, char *argv[])
 				}
 		}
 	
-	file_write_TEC(FV, mv, argv[2], 0.0, (int)config[0]);	
-
+	if ((int)config[32] != 0)	
+		file_write_TEC(FV, mv, argv[2], 0.0, dim);	
 	
 	finite_volume_scheme(&FV, mv, scheme);
 
-	file_write_TEC(FV, mv, argv[2], config[1], (int)config[0]);
+	file_write_TEC(FV, mv, argv[2], config[1], dim);
 
-	if((int)config[0] > 1)
+	if(dim > 1)
 		file_write_VTK_3D(FV, mv, argv[2]);
 	
 	return 0;	

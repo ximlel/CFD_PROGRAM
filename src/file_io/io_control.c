@@ -20,6 +20,7 @@ static void config_check()
 			exit(2);
 		}
 
+	// species
 	config[2] = isinf(config[2]) ? 1 : config[9];	
 
 	if(isinf(config[4]))
@@ -46,13 +47,11 @@ static void config_check()
  				config[7] = 0.45;
 		}
 
+	// EUL/LAG
 	config[8] = isinf(config[8]) ? 0 : config[8];
-	config[9] = isinf(config[9]) ? 1 : config[9];
-	if (dim == 1)
-		config[31] = isinf(config[31]) ? 0 : config[31];
-	else if (dim == 2)
-		config[31] = isinf(config[31]) ? 0 : config[31];
-
+	// reconstruction(prim_var/cons_var)
+	config[31] = isinf(config[31]) ? 0 : config[31];
+	// v_fix
 	config[61] = isinf(config[61]) ? 0 : config[61];
 }
 
@@ -61,8 +60,8 @@ static void config_check()
 void example_io(const char *example, char *add_mkdir, const int i_or_o)
 {
 	const int dim = (int)config[0];
-	const int el = isinf(config[8]) ? 0 : (int)config[8];
-	const int order = isinf(config[9]) ? 1 : (int)config[9];
+	const int el = (int)config[8];
+	const int order = (int)config[9];
 
 	char tmp[15];
 	

@@ -18,24 +18,30 @@
 
 
 30	3D模拟(默认关闭)            V,W,Y,Z都初始化为0
-31	重构			(2D默认:0:原始变量重构) 否则(1):守恒变量重构(1D默认)			
+31	重构			(默认:0原始变量重构) 否则(1):守恒变量重构		
+32	输出初始网格数据	(默认:1开启)  (0关闭)
 
 40	limiter			(默认1:Ven) 0:Barth
-41	1D-limiter-alpha	(默认1.9) (0,2)
+41	1D-limiter-alpha	(默认为1.9) (0,2)
 
 60	U_gamma			(默认inf) 不为inf即取U_gamma(一般取1):守恒量增加(+U_gamma)
 61	v_fix			(默认0)关闭　(1开启)
 70	上下周期边界设定偏移(+上->  -上<-)
 
-#./FLUID_SRC.out 输入 输出 维数 solver 网格 (EUL, 步数)
-
+#./FLUID_SRC.out 输入 输出 维数 solver 网格
 solver形式(1_Godunov, 2_ROE)
 
 步数
 >0
 =0
 
-其他修改 ?=????
-config[?]=????
-find "="
+其他修改:?=????
+means:config[?]=????
 
+exit
+	1 文件目录错误
+	2 读入数据错误
+	5 内存错误
+	3 计算错误
+
+periodic boundary condition(-7)

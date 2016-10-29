@@ -355,7 +355,7 @@ double tau_calc(const struct cell_var cv, const struct mesh_var mv)
 							c = sqrt(ifv.gamma * ifv.P / ifv.RHO);
 							c_R = sqrt(ifv_R.gamma * ifv_R.P / ifv_R.RHO);
 							lambda_max = fmax(c+fabs(ifv.U), c_R+fabs(ifv_R.U));
-							cum += lambda_max;		
+							cum += lambda_max;	
 						}
 					else if (dim == 2)
 						{
@@ -366,7 +366,8 @@ double tau_calc(const struct cell_var cv, const struct mesh_var mv)
 							lambda_max = fmax(c+fabs(qn), c_R+fabs(qn_R));
 							cum += 0.5*lambda_max * ifv.length;
 						}
-				}		
+				}
+//cum = 1.0;		
 			tau = fmin(tau, cv.vol[k]/cum * CFL);
 		}	//To decide tau.
 	return tau;

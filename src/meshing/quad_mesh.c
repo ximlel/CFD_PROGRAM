@@ -13,7 +13,7 @@
 
 
 
-static void quad_mesh(struct mesh_var * mv, int n_x_add, int n_y_add)
+static int quad_mesh(struct mesh_var * mv, int n_x_add, int n_y_add)
 {
 	if(isinf(config[13]) || isinf(config[14]))
 		{
@@ -86,6 +86,8 @@ static void quad_mesh(struct mesh_var * mv, int n_x_add, int n_y_add)
 		mv->border_pt[k] = mv->border_pt[k-1] - n_x - 1;
 	mv->border_pt[num_border] = 0;
 
+	return 1;
+
  return_0:
 	free(mv->X);
 	mv->X = NULL;
@@ -105,7 +107,7 @@ static void quad_mesh(struct mesh_var * mv, int n_x_add, int n_y_add)
 	exit(5);	
 }
 
-static void quad_border_cond
+static int quad_border_cond
 (struct mesh_var * mv, int n_x_add, int n_y_add,
  int down, int right, int up, int left)
 {
@@ -217,11 +219,14 @@ static void quad_border_cond
 	if(mv->num_ghost > 0)
 		period_cell_modi(mv);
 
+	return 1;
+
  return_0:
 	free(mv->border_cond);
 	mv->border_cond = NULL;	
 	free(mv->peri_cell);
-	mv->peri_cell = NULL;	
+	mv->peri_cell = NULL;
+	exit(5);	
 }
 
 void Sod_mesh(struct mesh_var * mv)
@@ -331,7 +336,7 @@ void oblique_periodic_mesh(struct mesh_var * mv)
 }
 
 
-static void quad_border_normal_velocity
+static int quad_border_normal_velocity
 (struct mesh_var * mv, int n_x_add, int n_y_add,
  double down, double right, double up, double left)
 {
@@ -364,9 +369,12 @@ static void quad_border_normal_velocity
 			mv->normal_v[k] = left;
 		}
 
+	return 1;
+
  return_0:
 	free(mv->normal_v);
-	mv->normal_v = NULL;	
+	mv->normal_v = NULL;
+	exit(5);	
 }
 
 void Saltzman_mesh_Lag(struct mesh_var * mv)
@@ -378,5 +386,6 @@ void Saltzman_mesh_Lag(struct mesh_var * mv)
 		mv->X[k] += (0.1 - mv->Y[k])*sin(M_PI * mv->X[k]);
 	
 	quad_border_cond(mv, n_x_a, n_y_a, -2, -2, -2, -2);
-	quad_border_normal_velocity(mv, n_x_a, n_y_a, 0.0, 0.0, 0.0, -1.0);  	
+	quad_border_normal_velocity(mv, n_x_a, n_y_a, 0.0, 0.0, 0.0, -1.0);
+	config[8] = 1;  	
 }

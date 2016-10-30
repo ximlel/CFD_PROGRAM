@@ -75,6 +75,7 @@ void period_ghost(struct cell_var * cv, struct mesh_var mv, struct flu_var * FV,
 								CV_COPY(gradz_phi);
 						}
 				}
+			CV_COPY(delta_U_e);
 		}
 }
 

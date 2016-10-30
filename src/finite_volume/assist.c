@@ -315,6 +315,24 @@ int interface_var_init
 				ifv->F_gamma = 0.0;
 			if ((int)config[2] == 2)
 				ifv->F_phi = 0.0;
+
+			ifv->F_rho_starR = ifv->F_rho;
+			ifv->F_u_starR = ifv->F_u;
+			if (dim > 1)
+				ifv->F_v_starR = ifv->F_v;
+			if (dim > 2)
+				ifv->F_w_starR = ifv->F_w;
+			ifv->F_e_starR = ifv->F_e;
+			if (!isinf(config[60]))
+				ifv->F_gamma_starR = ifv->F_gamma;
+			if ((int)config[2] == 2)
+				ifv->F_phi_starR = ifv->F_phi;
+
+			ifv->u_star = 0.0;
+			ifv->u_add_c = 0.0;
+
+			ifv->F_delta_e = 0.0;
+
 			return 0;
 		}
 	else if (cc[k][j] == -3)//prescribed boundary condition.

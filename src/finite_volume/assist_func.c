@@ -285,6 +285,9 @@ int interface_var_init
 				ifv->F_gamma = 0.0;
 			if ((int)config[2] == 2)
 				ifv->F_phi = 0.0;
+
+			ifv->F_delta_e = 0.0;
+
 			return -2;
 		}
 	else if (cc[k][j] == -3)//prescribed boundary condition.

@@ -19,6 +19,8 @@ void cons_qty_copy_cv2ifv(struct i_f_var *ifv, struct cell_var cv, int c)
 	if ((int)config[2] == 2)
 		ifv->U_phi = cv.U_phi[c];
 	ifv->U_gamma = cv.U_gamma[c];
+
+	ifv->delta_U_e = cv.delta_U_e[c];
 }
 
 void prim_var_copy_ifv2FV(struct i_f_var ifv, struct flu_var *FV, int c)
@@ -62,4 +64,22 @@ void flux_copy_ifv2cv(struct i_f_var ifv, struct cell_var *cv, int k, int j)
 	if ((int)config[2] == 2)
 		cv->PHI_p[k][j] = ifv.PHI;
 	cv->gamma_p[k][j] = ifv.gamma;
+
+
+	cv->F_rho_starR[k][j] = ifv.F_rho_starR;
+	cv->F_e_starR[k][j]   = ifv.F_e_starR;
+	cv->F_u_starR[k][j]   = ifv.F_u_starR;
+	if (dim > 1)
+		cv->F_v_starR[k][j] = ifv.F_v_starR;
+	if (dim > 2)
+		cv->F_w_starR[k][j] = ifv.F_w_starR;
+	if ((int)config[2] == 2)
+		cv->F_phi_starR[k][j] = ifv.F_phi_starR;
+	if (!isinf(config[60]))
+		cv->F_gamma_starR[k][j] = ifv.F_gamma_starR;
+
+	cv->u_star[k][j]  = ifv.u_star;
+	cv->u_add_c[k][j] = ifv.u_add_c;
+
+	cv->F_delta_e[k][j] = ifv.F_delta_e;
 }

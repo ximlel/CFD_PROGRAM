@@ -173,6 +173,25 @@ struct cell_var cell_mem_init(const struct mesh_var mv, struct flu_var * FV)
 				}
 		}
 
+	CP_INIT_MEM(F_rho_starR, num_cell);
+	CP_INIT_MEM(F_e_starR, num_cell);
+	CP_INIT_MEM(F_gamma_starR, num_cell);
+	if ((int)config[2] == 2)
+		CP_INIT_MEM(F_phi_starR, num_cell);
+	CP_INIT_MEM(F_u_starR, num_cell);
+	if (dim > 1)
+		{
+			CP_INIT_MEM(F_v_starR, num_cell);
+		}
+	if (dim > 2)
+		{	
+			CP_INIT_MEM(F_w_starR, num_cell);
+		}
+	CP_INIT_MEM(u_star, num_cell);
+	CP_INIT_MEM(u_add_c, num_cell);
+	CV_INIT_MEM(delta_U_e, num_cell_ghost);	
+	CP_INIT_MEM(F_delta_e, num_cell);
+
 	return cv;
 	
  return_NULL:

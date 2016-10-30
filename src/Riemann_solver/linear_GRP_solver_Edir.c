@@ -6,12 +6,12 @@
 
 
 void linear_GRP_solver_Edir
-(double *wave_speed, double *direvative, double *source, double lambda,
+(double *wave_speed, double *direvative, double *source, double *source_star, double lambda,
  double rho_L, double rho_R, double d_rho_L, double d_rho_R,
  double   u_L, double   u_R, double   d_u_L, double   d_u_R,
  double   v_L, double   v_R, double   d_v_L, double   d_v_R,
  double   p_L, double   p_R, double   d_p_L, double   d_p_R,
- double gamma, double eps)
+ double  gamma, double  eps)
 {
   double dist;
   double c_L, c_R, c_frac;
@@ -141,6 +141,12 @@ void linear_GRP_solver_Edir
 	direvative[3] = direvative[3] + lambda * d_p_R;
       }
     //}
+
+source_star[0] = rho_star_R;
+source_star[1] = u_star;
+source_star[2] = v_R;
+source_star[3] = p_star;
+
     return;
   }
 
@@ -490,4 +496,10 @@ else
     }
   //----end of non-trivial case----
   }
+
+source_star[0] = rho_star_R;
+source_star[1] = u_star;
+source_star[2] = v_R;
+source_star[3] = p_star;
+
 }

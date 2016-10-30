@@ -147,3 +147,52 @@ flux_v_fix += tau*length/cv->vol[k]*cv->RHO_p[k][j]*(cv->U_p[k][j]*cv->n_x[k][j]
 			cv->U_e[k] += flux_v_fix;///cv->U_rho[k]/2.0;
 		}
 }
+
+
+void cons_qty_update_corr_ave_P
+(struct cell_var * cv, const struct mesh_var mv,
+ const struct flu_var FV, const double tau)
+{
+	const int dim = (int)config[0];
+	const int num_cell = (int)config[3];
+	int ** cp = mv.cell_pt;
+	
+	int p_p, p_n;
+	double length, gamma;
+	for(int k = 0; k < num_cell; ++k)
+		{
+			if(isinf(config[60]))
+				gamma = cv->U_gamma[k]/cv->U_rho[k];
+			for(int j = 0; j < cp[k][0]; j++)
+				{
+					if(j == cp[k][0]-1) 
+						{
+							p_p=cp[k][1];
+							p_n=cp[k][j+1];
+						}				  
+					else
+						{
+							p_p=cp[k][j+2];
+							p_n=cp[k][j+1];
+						}
+					if (dim == 1)
+						length = cv->n_x[k][j];
+					else if (dim == 2)
+						length = sqrt((mv.X[p_p] - mv.X[p_n])*(mv.X[p_p]-mv.X[p_n]) + (mv.Y[p_p] - mv.Y[p_n])*(mv.Y[p_p]-mv.Y[p_n]));
+					
+					cv->U_rho[k] += - tau*cv->F_rho[k][j] * length / cv->vol[k];
+					cv->U_e[k]   += - tau*cv->F_e[k][j]   * length / cv->vol[k];	
+					cv->U_u[k]   += - tau*cv->F_u[k][j]   * length / cv->vol[k];
+					if (dim > 1)
+						cv->U_v[k] += - tau*cv->F_v[k][j] * length / cv->vol[k];
+					if (dim > 2)
+						cv->U_w[k] += - tau*cv->F_w[k][j] * length / cv->vol[k];
+					if ((int)config[2] == 2)
+						cv->U_phi[k] += - tau*cv->F_phi[k][j] * length / cv->vol[k];
+					if(!isinf(config[60]))
+						cv->U_gamma[k] += - tau*cv->F_gamma[k][j] * length / cv->vol[k];
+				}
+			if(isinf(config[60]))
+				cv->U_gamma[k] = gamma*cv->U_rho[k];
+		}
+}

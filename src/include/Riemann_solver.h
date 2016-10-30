@@ -11,7 +11,7 @@ void HLL_solver(double *F, double gamma, double P_L, double RHO_L, double U_L, d
 void Roe_Goundov_solver(double *F, double gamma, double P_L, double RHO_L, double U_L, double P_R, double RHO_R, double U_R, double *lambda_max, double delta);
 void Roe_HLL_solver(double *V_mk, double *F, double gamma, double P_L, double RHO_L, double U_L, double V_L, double P_R, double RHO_R, double U_R, double V_R, double *lambda_max, double delta);
 void linear_GRP_solver_Edir
-(double *wave_speed, double *direvative, double *source, double lambda,
+(double *wave_speed, double *direvative, double *source, double *source_star, double lambda,
  double rho_L, double rho_R, double d_rho_L, double d_rho_R,
  double   u_L, double   u_R, double   d_u_L, double   d_u_R,
  double   v_L, double   v_R, double   d_v_L, double   d_v_R,

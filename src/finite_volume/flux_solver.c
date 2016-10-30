@@ -60,9 +60,9 @@ void Riemann_exact_scheme(struct i_f_var * ifv, struct i_f_var * ifv_R)
 			u_R = ifv_R->U*n_x + ifv_R->V*n_y;	
 		}
 
-	double wave_speed[2], dire[4], mid[4];
+	double wave_speed[2], dire[4], mid[4], star[4];
 	double gamma = ifv->gamma;
-	linear_GRP_solver_Edir(wave_speed, dire, mid, 0.0, ifv->RHO, ifv_R->RHO, 0.0, 0.0, u, u_R, 0.0, 0.0, -0.0, -0.0, 0.0, 0.0, ifv->P, ifv_R->P, 0.0, 0.0, gamma, eps);		
+	linear_GRP_solver_Edir(wave_speed, dire, mid, star, 0.0, ifv->RHO, ifv_R->RHO, 0.0, 0.0, u, u_R, 0.0, 0.0, -0.0, -0.0, 0.0, 0.0, ifv->P, ifv_R->P, 0.0, 0.0, gamma, eps);		
 
 	double rho_mid, p_mid, u_mid, v_mid, mid_qt;
 	rho_mid = mid[0];
@@ -111,6 +111,50 @@ void Riemann_exact_scheme(struct i_f_var * ifv, struct i_f_var * ifv_R)
 	if ((int)config[2] == 2)
 		ifv->PHI = phi_mid;
 	ifv->gamma = gamma;
+
+
+	double rho_starR, p_star, u_starR, v_starR, qt_starR;
+	rho_starR = star[0];
+	p_star = star[3];
+	if (dim == 1)
+		{
+			u_starR = star[1];
+											
+			ifv->F_rho_starR = rho_starR*u_starR;
+			ifv->F_u_starR   = ifv->F_rho_starR*u_starR + p_star;
+			ifv->F_e_starR   = (gamma/(gamma-1.0))*p_star/rho_starR + 0.5*u_starR*u_starR;
+			ifv->F_e_starR  *= ifv->F_rho_starR;
+		}
+	if (dim == 2)
+		{				  
+			if(star[1] > 0)
+				qt_starR =   -ifv->U*n_y +   ifv->V*n_x;
+			else
+				qt_starR = -ifv_R->U*n_y + ifv_R->V*n_x;
+			u_starR = star[1]*n_x - qt_starR*n_y;
+			v_starR = star[1]*n_y + qt_starR*n_x;			
+											
+			ifv->F_rho_starR = rho_starR*(u_starR*n_x + v_starR*n_y);
+			ifv->F_u_starR   = ifv->F_rho_starR*u_starR + p_star*n_x;
+			ifv->F_v_starR   = ifv->F_rho_starR*v_starR + p_star*n_y;
+			ifv->F_e_starR   = (gamma/(gamma-1.0))*p_star/rho_starR + 0.5*(u_starR*u_starR + v_starR*v_starR);
+			ifv->F_e_starR  *= ifv->F_rho_starR;
+		}
+	double phi_star;
+	if ((int)config[2] == 2)
+		{
+			if(star[1] > 0)
+				phi_star = ifv->PHI;
+			else
+				phi_star = ifv_R->PHI;
+			ifv->F_phi_starR = ifv->F_rho_starR * phi_star;
+		}
+	if (!isinf(config[60]))
+		ifv->F_gamma_starR = ifv->F_rho_starR*gamma;
+
+	ifv->F_delta_e = ifv->F_rho*ifv->delta_U_e;
+	ifv->u_star = star[1];
+	ifv->u_add_c = wave_speed[1];
 }
 
 
@@ -140,13 +184,13 @@ void GRP_scheme(struct i_f_var * ifv, struct i_f_var * ifv_R, double tau)
 			d_v_R = -ifv_R->d_u*n_y + ifv_R->d_v*n_x;
 		}
 	
-	double wave_speed[2], dire[4], mid[4];
+	double wave_speed[2], dire[4], mid[4], star[4];
 	double gamma = ifv->gamma;
 
 	double rho_mid, p_mid, u_mid, v_mid, phi_mid, mid_qt;
 	if (dim == 1)
 		{
-			linear_GRP_solver_Edir(wave_speed, dire, mid, 0.0, ifv->RHO, ifv_R->RHO, ifv->d_rho, ifv_R->d_rho, u, u_R, d_u, d_u_R, -0.0, -0.0, 0.0, 0.0, ifv->P, ifv_R->P, ifv->d_p, ifv_R->d_p, gamma, eps);
+			linear_GRP_solver_Edir(wave_speed, dire, mid, star, 0.0, ifv->RHO, ifv_R->RHO, ifv->d_rho, ifv_R->d_rho, u, u_R, d_u, d_u_R, -0.0, -0.0, 0.0, 0.0, ifv->P, ifv_R->P, ifv->d_p, ifv_R->d_p, gamma, eps);
 
 			rho_mid = mid[0] + 0.5*tau*dire[0];
 			u_mid   = mid[1] + 0.5*tau*mid[0]*dire[1]/rho_mid;
@@ -158,7 +202,7 @@ void GRP_scheme(struct i_f_var * ifv, struct i_f_var * ifv_R, double tau)
 			ifv->F_e   = ifv->F_rho*ifv->F_e;
 			if ((int)config[2] == 2)
 				{					
-					linear_GRP_solver_Edir(wave_speed, dire, mid, 0.0, ifv->RHO, ifv_R->RHO, ifv->d_rho, ifv_R->d_rho, u, u_R, d_u, d_u_R, ifv->PHI, ifv_R->PHI, ifv->d_phi, ifv_R->d_phi, ifv->P, ifv_R->P, ifv->d_p, ifv_R->d_p, gamma, eps);
+					linear_GRP_solver_Edir(wave_speed, dire, mid, star, 0.0, ifv->RHO, ifv_R->RHO, ifv->d_rho, ifv_R->d_rho, u, u_R, d_u, d_u_R, ifv->PHI, ifv_R->PHI, ifv->d_phi, ifv_R->d_phi, ifv->P, ifv_R->P, ifv->d_p, ifv_R->d_p, gamma, eps);
 					phi_mid = mid[2] + 0.5*tau*mid[0]*dire[2]/rho_mid;
 					ifv->F_phi = ifv->F_rho*phi_mid;
 				}
@@ -172,7 +216,7 @@ void GRP_scheme(struct i_f_var * ifv, struct i_f_var * ifv_R, double tau)
 		}
 	else if (dim == 2)
 		{
-			linear_GRP_solver_Edir(wave_speed, dire, mid, 0.0, ifv->RHO, ifv_R->RHO, ifv->d_rho, ifv_R->d_rho, u, u_R, d_u, d_u_R, v, v_R, d_v, d_v_R, ifv->P, ifv_R->P, ifv->d_p, ifv_R->d_p, gamma, eps);
+			linear_GRP_solver_Edir(wave_speed, dire, mid, star, 0.0, ifv->RHO, ifv_R->RHO, ifv->d_rho, ifv_R->d_rho, u, u_R, d_u, d_u_R, v, v_R, d_v, d_v_R, ifv->P, ifv_R->P, ifv->d_p, ifv_R->d_p, gamma, eps);
 
 			rho_mid = mid[0] + 0.5*tau*dire[0];
 			u_mid   = (mid[1] + 0.5*tau*mid[0]*dire[1]/rho_mid)*n_x - (mid[2] + 0.5*tau*mid[0]*dire[2]/rho_mid)*n_y;
@@ -186,7 +230,7 @@ void GRP_scheme(struct i_f_var * ifv, struct i_f_var * ifv_R, double tau)
 			ifv->F_e   = ifv->F_rho*ifv->F_e;
 			if ((int)config[2] == 2)
 				{					
-					linear_GRP_solver_Edir(wave_speed, dire, mid, 0.0, ifv->RHO, ifv_R->RHO, ifv->d_rho, ifv_R->d_rho, u, u_R, d_u, d_u_R, ifv->PHI, ifv_R->PHI, ifv->d_phi, ifv_R->d_phi, ifv->P, ifv_R->P, ifv->d_p, ifv_R->d_p, gamma, eps);
+					linear_GRP_solver_Edir(wave_speed, dire, mid, star, 0.0, ifv->RHO, ifv_R->RHO, ifv->d_rho, ifv_R->d_rho, u, u_R, d_u, d_u_R, ifv->PHI, ifv_R->PHI, ifv->d_phi, ifv_R->d_phi, ifv->P, ifv_R->P, ifv->d_p, ifv_R->d_p, gamma, eps);
 					phi_mid = mid[2] + 0.5*tau*mid[0]*dire[2]/rho_mid;
 					ifv->F_phi = ifv->F_rho*phi_mid;
 				}

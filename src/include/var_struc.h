@@ -40,6 +40,10 @@ struct cell_var {
 	double *gradx_u,     *grady_u,     *gradz_u;
 	double *gradx_v,     *grady_v,     *gradz_v;
 	double *gradx_w,     *grady_w,     *gradz_w;
+	double *delta_U_e;
+	double **F_delta_e;
+	double **F_rho_starR, **F_e_starR, **F_gamma_starR, **F_phi_starR, **F_u_starR, **F_v_starR, **F_w_starR;
+	double **u_star, **u_add_c;
 };
 
 //interface
@@ -58,6 +62,10 @@ struct i_f_var {
 	double d_u;
 	double d_v;
 	double d_w;
+	double delta_U_e;
+	double F_delta_e;
+	double F_rho_starR, F_e_starR, F_gamma_starR, F_phi_starR, F_u_starR, F_v_starR, F_w_starR;
+	double u_star, u_add_c;
 };
 
 //mesh

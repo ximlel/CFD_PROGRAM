@@ -1,9 +1,9 @@
 void cons_qty_init(struct cell_var * cv, const struct flu_var FV);
 int cons2prim(struct i_f_var * ifv);
-void cons_qty_update
+int cons_qty_update
 (struct cell_var * cv, const struct mesh_var mv,
  const struct flu_var FV, const double tau);
-void cons_qty_update_corr_ave_P
+int cons_qty_update_corr_ave_P
 (struct cell_var * cv, const struct mesh_var mv,
  const struct flu_var FV, const double tau);
 

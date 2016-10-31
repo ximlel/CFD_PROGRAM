@@ -66,20 +66,20 @@ void flux_copy_ifv2cv(struct i_f_var ifv, struct cell_var *cv, int k, int j)
 	cv->gamma_p[k][j] = ifv.gamma;
 
 
-	cv->F_rho_starR[k][j] = ifv.F_rho_starR;
-	cv->F_e_starR[k][j]   = ifv.F_e_starR;
-	cv->F_u_starR[k][j]   = ifv.F_u_starR;
+	cv->F_rho_star[k][j] = ifv.F_rho_star;
+	cv->F_e_star[k][j]   = ifv.F_e_star;
+	cv->F_u_star[k][j]   = ifv.F_u_star;
 	if (dim > 1)
-		cv->F_v_starR[k][j] = ifv.F_v_starR;
+		cv->F_v_star[k][j] = ifv.F_v_star;
 	if (dim > 2)
-		cv->F_w_starR[k][j] = ifv.F_w_starR;
+		cv->F_w_star[k][j] = ifv.F_w_star;
 	if ((int)config[2] == 2)
-		cv->F_phi_starR[k][j] = ifv.F_phi_starR;
+		cv->F_phi_star[k][j] = ifv.F_phi_star;
 	if (!isinf(config[60]))
-		cv->F_gamma_starR[k][j] = ifv.F_gamma_starR;
+		cv->F_gamma_star[k][j] = ifv.F_gamma_star;
 
 	cv->u_star[k][j]  = ifv.u_star;
-	cv->u_add_c[k][j] = ifv.u_add_c;
+	cv->u_minus_c[k][j] = ifv.u_minus_c;
 
 	cv->F_delta_e[k][j] = ifv.F_delta_e;
 }

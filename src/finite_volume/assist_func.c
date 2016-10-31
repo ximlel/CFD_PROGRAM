@@ -286,6 +286,20 @@ int interface_var_init
 			if ((int)config[2] == 2)
 				ifv->F_phi = 0.0;
 
+			ifv->F_rho_star = 0.0;
+			ifv->F_u_star = ifv->P*ifv->n_x;
+			if (dim > 1)
+				ifv->F_v_star = ifv->P*ifv->n_y;
+			if (dim > 2)
+				ifv->F_w_star = ifv->P*ifv->n_z;
+			ifv->F_e_star = 0.0;
+			if (!isinf(config[60]))
+				ifv->F_gamma_star = 0.0;
+			if ((int)config[2] == 2)
+				ifv->F_phi_star = 0.0;
+			ifv->u_star = 0.0;
+			ifv->u_minus_c = 0.0;
+
 			ifv->F_delta_e = 0.0;
 
 			return -2;
@@ -370,7 +384,6 @@ double tau_calc(const struct cell_var cv, const struct mesh_var mv)
 							cum += 0.5*lambda_max * ifv.length;
 						}
 				}
-//cum = 1.0;		
 			tau = fmin(tau, cv.vol[k]/cum * CFL);
 		}	//To decide tau.
 	return tau;

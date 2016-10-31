@@ -16,6 +16,7 @@
 14	the grid number in y direction     //n_y
 15	the grid number in z direction     //n_z
 
+16	tau			存储时间步长tau
 
 30	3D模拟(默认关闭)            V,W,Y,Z都初始化为0
 31	重构			(默认:0原始变量重构) 否则(1):守恒变量重构		

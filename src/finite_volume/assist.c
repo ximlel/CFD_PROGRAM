@@ -316,20 +316,20 @@ int interface_var_init
 			if ((int)config[2] == 2)
 				ifv->F_phi = 0.0;
 
-			ifv->F_rho_starR = ifv->F_rho;
-			ifv->F_u_starR = ifv->F_u;
+			ifv->F_rho_star = ifv->F_rho;
+			ifv->F_u_star = ifv->F_u;
 			if (dim > 1)
-				ifv->F_v_starR = ifv->F_v;
+				ifv->F_v_star = ifv->F_v;
 			if (dim > 2)
-				ifv->F_w_starR = ifv->F_w;
-			ifv->F_e_starR = ifv->F_e;
+				ifv->F_w_star = ifv->F_w;
+			ifv->F_e_star = ifv->F_e;
 			if (!isinf(config[60]))
-				ifv->F_gamma_starR = ifv->F_gamma;
+				ifv->F_gamma_star = ifv->F_gamma;
 			if ((int)config[2] == 2)
-				ifv->F_phi_starR = ifv->F_phi;
+				ifv->F_phi_star = ifv->F_phi;
 
 			ifv->u_star = 0.0;
-			ifv->u_add_c = 0.0;
+			ifv->u_minus_c = 0.0;
 
 			ifv->F_delta_e = 0.0;
 
@@ -368,31 +368,6 @@ int interface_var_init
 		}
 
 	return 1;
-}
-
-
-void flux_copy(struct i_f_var ifv, struct cell_var *cv, int k, int j)
-{
-	const int dim = (int)config[0];
-	
-	cv->F_rho[k][j] = ifv.F_rho;
-	cv->F_e[k][j]   = ifv.F_e;
-	cv->F_u[k][j]   = ifv.F_u;
-	if (dim > 1)
-		cv->F_v[k][j] = ifv.F_v;
-	if (dim > 2)
-		cv->F_w[k][j] = ifv.F_w;
-	if ((int)config[2] == 2)
-		cv->F_phi[k][j] = ifv.F_phi;
-	if (!isinf(config[60]))
-		cv->F_gamma[k][j] = ifv.F_gamma;
-
-	cv->RHO_p[k][j] = ifv.RHO;
-	cv->U_p[k][j]   = ifv.U;
-	cv->F_p_x[k][j] = ifv.P;
-	if ((int)config[2] == 2)
-		cv->PHI_p[k][j] = ifv.PHI;
-	cv->gamma_p[k][j] = ifv.gamma;
 }
 
 

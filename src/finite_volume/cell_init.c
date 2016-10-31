@@ -173,22 +173,22 @@ struct cell_var cell_mem_init(const struct mesh_var mv, struct flu_var * FV)
 				}
 		}
 
-	CP_INIT_MEM(F_rho_starR, num_cell);
-	CP_INIT_MEM(F_e_starR, num_cell);
-	CP_INIT_MEM(F_gamma_starR, num_cell);
+	CP_INIT_MEM(F_rho_star, num_cell);
+	CP_INIT_MEM(F_e_star, num_cell);
+	CP_INIT_MEM(F_gamma_star, num_cell);
 	if ((int)config[2] == 2)
-		CP_INIT_MEM(F_phi_starR, num_cell);
-	CP_INIT_MEM(F_u_starR, num_cell);
+		CP_INIT_MEM(F_phi_star, num_cell);
+	CP_INIT_MEM(F_u_star, num_cell);
 	if (dim > 1)
 		{
-			CP_INIT_MEM(F_v_starR, num_cell);
+			CP_INIT_MEM(F_v_star, num_cell);
 		}
 	if (dim > 2)
 		{	
-			CP_INIT_MEM(F_w_starR, num_cell);
+			CP_INIT_MEM(F_w_star, num_cell);
 		}
 	CP_INIT_MEM(u_star, num_cell);
-	CP_INIT_MEM(u_add_c, num_cell);
+	CP_INIT_MEM(u_minus_c, num_cell);
 	CV_INIT_MEM(delta_U_e, num_cell_ghost);	
 	CP_INIT_MEM(F_delta_e, num_cell);
 
@@ -329,7 +329,8 @@ void cell_rel(struct cell_var * cv, const struct mesh_var mv)
 						length = sqrt((mv.Y[p_p] - mv.Y[p_n])*(mv.Y[p_p] - mv.Y[p_n])+(mv.X[p_n] - mv.X[p_p])*(mv.X[p_n] - mv.X[p_p]));
 						cv->n_x[k][j] = (mv.Y[p_p] - mv.Y[p_n]) / length;
 						cv->n_y[k][j] = (mv.X[p_n] - mv.X[p_p]) / length;
-					
+						//Inner normal 
+
 						cell_rec = 0;							   		
 						ts = 1;
 						while (ts <= MAX(num_cell-k-1, k))

@@ -128,9 +128,12 @@ void finite_volume_scheme(struct flu_var *FV, const struct mesh_var mv, const ch
 						}
 				}
 
+
 //			cons_qty_update(&cv, mv, *FV, tau);
 			if(cons_qty_update_corr_ave_P(&cv, mv, *FV, tau) == 0)
-					stop_step = 1;
+				stop_step = 1;
+
+printf("%d\n",i);
 
 			DispPro(t_all*100.0/config[1], i);
 

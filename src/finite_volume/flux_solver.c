@@ -136,8 +136,8 @@ void Riemann_exact_scheme(struct i_f_var * ifv, struct i_f_var * ifv_R)
 			if (dim == 2)
 				{
 					F_rho = ifv->RHO*(ifv->U*n_x + ifv->V*n_y);
-					F_u   = ifv->RHO*ifv->U + ifv->P*n_x;
-					F_v   = ifv->RHO*ifv->V + ifv->P*n_y;
+					F_u   = F_rho*ifv->U + ifv->P*n_x;
+					F_v   = F_rho*ifv->V + ifv->P*n_y;
 					F_e   = (gamma/(gamma-1.0))*ifv->P/ifv->RHO + 0.5*(ifv->U*ifv->U + ifv->V*ifv->V);
 					F_e  *= F_rho;
 				}

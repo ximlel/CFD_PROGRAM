@@ -286,17 +286,17 @@ int interface_var_init
 			if ((int)config[2] == 2)
 				ifv->F_phi = 0.0;
 
-			ifv->F_rho_star = 0.0;
+			ifv->F_rho_star = ifv->F_rho;
 			ifv->F_u_star = ifv->P*ifv->n_x;
 			if (dim > 1)
-				ifv->F_v_star = ifv->P*ifv->n_y;
+				ifv->F_v_star = ifv->F_v;
 			if (dim > 2)
-				ifv->F_w_star = ifv->P*ifv->n_z;
-			ifv->F_e_star = 0.0;
+				ifv->F_w_star = ifv->F_w;
+			ifv->F_e_star = ifv->F_e;
 			if (!isinf(config[60]))
-				ifv->F_gamma_star = 0.0;
+				ifv->F_gamma_star = ifv->F_gamma;
 			if ((int)config[2] == 2)
-				ifv->F_phi_star = 0.0;
+				ifv->F_phi_star = ifv->F_phi;
 			ifv->u_star = 0.0;
 			ifv->u_minus_c = 0.0;
 

@@ -229,14 +229,14 @@ static void sub_cell_init
 					p_n=cp[k][cp[k][0]];
 					l_n=cp[k][0]-1;
 				}
-			scv[j].cos_a  = (mv.X[p_p] - mv.X[p])*(mv.X[p_n]-mv.X[p])+(mv.Y[p_p] - mv.Y[p])*(mv.Y[p_n]-mv.Y[p]);
-			scv[j].cos_a /= scv[cp[k][0]*2+1].length[j]*scv[cp[k][0]*2+1].length[l_n];
-			scv[j].sin_a  = sqrt(1 - scv[j].cos_a*scv[j].cos_a);
+			scv[j].cos_a  = (mv.X[p_p] - mv.X[p])*(mv.X[p_n]-mv.X[p]) + (mv.Y[p_p] - mv.Y[p])*(mv.Y[p_n]-mv.Y[p]);
+			scv[j].cos_a /= scv[cp[k][0]*2+1].length[j] * scv[cp[k][0]*2+1].length[l_n];
+			scv[j].sin_a  = sqrt(1.0 - scv[j].cos_a*scv[j].cos_a);
 			scv[j].length[0] = -cv.u_star[k][j]  *tau/scv[j].sin_a;
 			scv[j].length[1] = -cv.u_star[k][l_n]*tau/scv[j].sin_a;
 			scv[j].length[2] = scv[j].length[0];
 			scv[j].length[3] = scv[j].length[1];
-			scv[j].vol = scv[j].sin_a*scv[j].length[1]*scv[j].length[0];
+			scv[j].vol = scv[j].sin_a*scv[j].length[0]*scv[j].length[1];
 			
 			scv[j].F_rho[0] = cv.F_rho[k][l_n];
 			scv[j].F_e[0]   = cv.F_e[k][l_n];
@@ -279,22 +279,22 @@ static void sub_cell_init
 			scv[j+cp[k][0]].length[3] = scv[j+cp[k][0]].length[1] - scv[j+cp[k][0]].length[0]*scv[j].cos_a - scv[j+cp[k][0]].length[2]*scv[l_p].cos_a;	
 			scv[j+cp[k][0]].vol = (scv[j+cp[k][0]].length[1] + scv[j+cp[k][0]].length[3]) * (-cv.u_star[k][j]*tau) / 2.0;
 			
-			scv[j].F_rho[0] = cv.F_rho_star[k][l_n];
-			scv[j].F_e[0]   = cv.F_e_star[k][l_n];
-			scv[j].F_u[0]   = cv.F_u_star[k][l_n];
-			scv[j].F_v[0]   = cv.F_v_star[k][l_n];
-			scv[j].F_rho[1] = cv.F_rho[k][j];
-			scv[j].F_e[1]   = cv.F_e[k][j];
-			scv[j].F_u[1]   = cv.F_u[k][j];
-			scv[j].F_v[1]   = cv.F_v[k][j];
-			scv[j].F_rho[2] = cv.F_rho_star[k][l_p];
-			scv[j].F_e[2]   = cv.F_e_star[k][l_p];
-			scv[j].F_u[2]   = cv.F_u_star[k][l_p];
-			scv[j].F_v[2]   = cv.F_v_star[k][l_p];
-			scv[j].F_rho[3] = -cv.F_rho_star[k][j];
-			scv[j].F_e[3]   = -cv.F_e_star[k][j];
-			scv[j].F_u[3]   = -cv.F_u_star[k][j];
-			scv[j].F_v[3]   = -cv.F_v_star[k][j];
+			scv[j+cp[k][0]].F_rho[0] = cv.F_rho_star[k][l_n];
+			scv[j+cp[k][0]].F_e[0]   = cv.F_e_star[k][l_n];
+			scv[j+cp[k][0]].F_u[0]   = cv.F_u_star[k][l_n];
+			scv[j+cp[k][0]].F_v[0]   = cv.F_v_star[k][l_n];
+			scv[j+cp[k][0]].F_rho[1] = cv.F_rho[k][j];
+			scv[j+cp[k][0]].F_e[1]   = cv.F_e[k][j];
+			scv[j+cp[k][0]].F_u[1]   = cv.F_u[k][j];
+			scv[j+cp[k][0]].F_v[1]   = cv.F_v[k][j];
+			scv[j+cp[k][0]].F_rho[2] = cv.F_rho_star[k][l_p];
+			scv[j+cp[k][0]].F_e[2]   = cv.F_e_star[k][l_p];
+			scv[j+cp[k][0]].F_u[2]   = cv.F_u_star[k][l_p];
+			scv[j+cp[k][0]].F_v[2]   = cv.F_v_star[k][l_p];
+			scv[j+cp[k][0]].F_rho[3] = -cv.F_rho_star[k][j];
+			scv[j+cp[k][0]].F_e[3]   = -cv.F_e_star[k][j];
+			scv[j+cp[k][0]].F_u[3]   = -cv.F_u_star[k][j];
+			scv[j+cp[k][0]].F_v[3]   = -cv.F_v_star[k][j];
 		}
 	
 	for(int j = 0; j < cp[k][0]; j++)
@@ -308,11 +308,34 @@ static void sub_cell_init
 static int sub_cell_update
 (const struct cell_var * cv, const struct mesh_var mv,
  struct sub_cell_var * scv, const int k, double gamma)
-{
+{	
 	const int dim = (int)config[0];
 	const double eps = (int)config[4];
 	int ** cp = mv.cell_pt;
 
+
+int KK=0;
+	for(int j = 0; j < cp[k][0]; j++)
+		{					
+			/*
+			printf("vol = %.16f, j = %d\n", scv[j].vol, j);
+			printf("U_rho = %.16f, j = %d\n", scv[j].U_rho, j);
+			printf("U_u = %.16f, j = %d\n", scv[j].U_u, j);
+			printf("U_v = %.16f, j = %d\n", scv[j].U_v, j);
+			printf("U_e = %.16f, j = %d\n", scv[j].U_e, j);
+			*/
+			printf("k=%d\n",k);
+			printf("F_rho[%d]  = %.16f, j = %d\n", cv->F_rho[k][j] , j);
+			printf("F_u[%d]  = %.16f, j = %d\n", cv->F_u[k][j] , j);
+			printf("F_v[%d]  = %.16f, j = %d\n", cv->F_v[k][j] , j);
+			printf("F_e[%d]  = %.16f, j = %d\n", cv->F_e[k][j] , j);
+			printf("F_rho_star[%d]  = %.16f, j = %d\n", cv->F_rho_star[k][j] , j);
+			printf("F_u_star[%d]  = %.16f, j = %d\n", cv->F_u_star[k][j] , j);
+			printf("F_v_star[%d]  = %.16f, j = %d\n", cv->F_v_star[k][j] , j);
+			printf("F_e_star[%d]  = %.16f, j = %d\n", cv->F_e_star[k][j] , j);
+		}
+
+	
 	for(int j = 0; j < cp[k][0]*2+2; j++)
 		{
 			scv[j].RHO   = scv[j].U_rho;	
@@ -347,7 +370,7 @@ static int sub_cell_update
 	for(int j = 0; j < cp[k][0]*2+1; j++)
 		P_ave += scv[j].vol*scv[j].P;
 	P_ave /= cv->vol[k];
-	delta_U_e = scv[cp[k][0]*2+1].U_e - (scv[cp[k][0]*2+1].P/(scv[cp[k][0]*2+1].gamma-1.0) + (0.5*(scv[cp[k][0]*2+1].U_u*scv[cp[k][0]*2+1].U_u + scv[cp[k][0]*2+1].U_v*scv[cp[k][0]*2+1].U_v)/scv[cp[k][0]*2+1].U_rho));
+	delta_U_e = scv[cp[k][0]*2+1].U_e - (P_ave/(scv[cp[k][0]*2+1].gamma-1.0) + 0.5*(scv[cp[k][0]*2+1].U_u*scv[cp[k][0]*2+1].U_u + scv[cp[k][0]*2+1].U_v*scv[cp[k][0]*2+1].U_v)/scv[cp[k][0]*2+1].U_rho);
 										 
 	cv->U_rho[k] = scv[cp[k][0]*2+1].U_rho;
 	cv->U_e[k]   = scv[cp[k][0]*2+1].U_e - delta_U_e;
@@ -355,6 +378,9 @@ static int sub_cell_update
 	cv->U_v[k]   = scv[cp[k][0]*2+1].U_v;
 	cv->delta_U_e[k] += delta_U_e;
 
+
+	printf("P_ave=%.16f\n",P_ave);
+	
 	return 1;	
 }
 
@@ -364,6 +390,8 @@ int cons_qty_update_corr_ave_P
 {
 	const int dim = (int)config[0];
 	const int num_cell = (int)config[3];
+	const double eps = (int)config[4];
+
 	int ** cp = mv.cell_pt;
 	
 	double gamma;
@@ -382,18 +410,18 @@ int cons_qty_update_corr_ave_P
 						num_border = cp[k][0];					
 					else
 						num_border = 4;
-					for(j = 0; j < num_border; j++)
-						{					
-							scv[i].U_rho += -tau*scv[i].F_rho[j] * scv[i].length[j] / scv[i].vol;
-							scv[i].U_e   += -tau*scv[i].F_e[j]   * scv[i].length[j] / scv[i].vol; 
-							scv[i].U_u   += -tau*scv[i].F_u[j]   * scv[i].length[j] / scv[i].vol;
-							if (dim > 1)
-								scv[i].U_v += -tau*scv[i].F_v[j] * scv[i].length[j] / scv[i].vol;
-							if ((int)config[2] == 2)
-								scv[i].U_phi += -tau*scv[i].F_phi[j] * scv[i].length[j] / scv[i].vol;
-							if (i == cp[k][0]*2+1)
-								scv[i].delta_U_e += -tau*scv[i].F_delta_e[j] * scv[i].length[j] / scv[i].vol;
-						}
+					if(scv[i].vol > 0.0 + eps)
+						for(j = 0; j < num_border; j++)
+							{																	
+								scv[i].U_rho += -tau*scv[i].F_rho[j] * scv[i].length[j] / scv[i].vol;
+								scv[i].U_e   += -tau*scv[i].F_e[j]   * scv[i].length[j] / scv[i].vol; 
+								scv[i].U_u   += -tau*scv[i].F_u[j]   * scv[i].length[j] / scv[i].vol;
+								if (dim > 1)
+									scv[i].U_v += -tau*scv[i].F_v[j] * scv[i].length[j] / scv[i].vol;
+								if ((int)config[2] == 2)
+									scv[i].U_phi += -tau*scv[i].F_phi[j] * scv[i].length[j] / scv[i].vol;
+								if (i == cp[k][0]*2+1)
+									scv[i].delta_U_e += -tau*scv[i].F_delta_e[j] * scv[i].length[j] / scv[i].vol;	    						}
 				}			
 			if(sub_cell_update(cv, mv, scv, k, gamma) == 0)
 				{

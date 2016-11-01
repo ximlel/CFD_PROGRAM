@@ -122,9 +122,9 @@ void linear_GRP_solver_Edir
       }
       else
       {
-	source[0] = rho_star_L;
+	source[0] = rho_star_R;
 	source[1] =   u_star;
-	source[2] =   v_L;
+	source[2] =   v_R;
 	source[3] =   p_star;
         direvative[0] = (direvative[1] + u_star*(d_p_R - c_R*c_R*d_rho_R)) /c_R/c_R;
 	//PI = (u_star+c_star_R)*rho_star_L*c_star_L*c_star_L / (u_star-c_star_L)/rho_star_R/c_star_R/c_star_R;
@@ -142,9 +142,9 @@ void linear_GRP_solver_Edir
       }
     //}
 
-source_star[0] = rho_star_R;
+source_star[0] = rho_star_L;
 source_star[1] = u_star;
-source_star[2] = v_R;
+source_star[2] = v_L;
 source_star[3] = p_star;
 
     return;

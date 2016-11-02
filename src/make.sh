@@ -11,7 +11,7 @@ read
 #./hydrocode.out Sod_10_test2 Sod_10_test2/Sod_10_test_ROE 2 1_Roe t1
 
 #./hydrocode.out Sod_test Sod_test/Sod_test_ROE	1 1_Roe		  free
-./hydrocode.out Sod_test Sod_test/Sod_test	1 1_Riemann_exact free
+#./hydrocode.out Sod_test Sod_test/Sod_test	1 1_Riemann_exact free
 #./hydrocode.out Sod_test Sod_test/Sod_test	1 2_GRP		  free
 #./hydrocode.out Sod_10_test Sod_10_test/Sod_10_test_ROE 2 1_Roe		  Sod
 #./hydrocode.out Sod_10_test Sod_10_test/Sod_10_test	 2 1_Riemann_exact Sod
@@ -26,7 +26,7 @@ read
 #./hydrocode.out NEW_TEST_OBLIQUE_SMALL NEW_TEST_OBLIQUE_SMALL/NEW_TEST_OBLIQUE_SMALL	2 1_Riemann_exact			oblique_periodic
 
 #./hydrocode.out NEW_TEST NEW_TEST/NEW_TEST_Roe	2 1_Roe			free
-#./hydrocode.out NEW_TEST NEW_TEST/NEW_TEST	2 1_Riemann_exact	free
+./hydrocode.out NEW_TEST NEW_TEST/NEW_TEST	2 1_Riemann_exact	free
 #./hydrocode.out NEW_TEST_BIG NEW_TEST_BIG/NEW_TEST_BIG_Roe	2 1_Roe			free
 
 #./hydrocode.out Riemann_2D3_Quad Riemann_2D3_Quad/Riemann_2D3_Quad_Roe	2 1_Roe			free

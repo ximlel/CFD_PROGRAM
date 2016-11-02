@@ -47,6 +47,7 @@ int cons2prim(struct i_f_var * ifv)
 		{
 			ifv->V  = ifv->U_v/ifv->U_rho;
 			ifv->P -= (0.5*(ifv->U_v*ifv->U_v)/ifv->U_rho) * (ifv->gamma-1.0);
+
 			if (isnan(ifv->V) || isinf(ifv->V))									
 				return 0;
 		}
@@ -63,6 +64,7 @@ int cons2prim(struct i_f_var * ifv)
 			if (isnan(ifv->PHI) || ifv->PHI < -0.1 || ifv->PHI > 1.0 + 0.1)//-100*eps
 				return 0;
 		}
+
 	if (isnan(ifv->RHO + ifv->U + ifv->P) || isinf(ifv->RHO + ifv->U + ifv->P) || ifv->RHO < -100*eps || ifv->P < -100*eps)
 		return 0;
 
@@ -312,29 +314,6 @@ static int sub_cell_update
 	const int dim = (int)config[0];
 	const double eps = (int)config[4];
 	int ** cp = mv.cell_pt;
-
-
-	for(int j = 0; j < cp[k][0]; j++)
-		{					
-			printf("vol = %.16f, j = %d\n", scv[j].vol, j);
-			printf("U_rho = %.16f, j = %d\n", scv[j].U_rho, j);
-			printf("U_u = %.16f, j = %d\n", scv[j].U_u, j);
-			printf("U_v = %.16f, j = %d\n", scv[j].U_v, j);
-			printf("U_e = %.16f, j = %d\n", scv[j].U_e, j);
-		
-			printf("k=%d\n",k);
-			printf("F_rho[%d]  = %.16f\n",j, cv->F_rho[k][j]);
-			printf("F_u[%d]  = %.16f\n", j, cv->F_u[k][j]);
-			printf("F_v[%d]  = %.16f\n", j, cv->F_v[k][j]);
-			printf("F_e[%d]  = %.16f\n", j, cv->F_e[k][j]);
-			printf("F_rho_star[%d]  = %.16f\n", j, cv->F_rho_star[k][j]);
-			printf("F_u_star[%d]  = %.16f\n", j, cv->F_u_star[k][j]);
-			printf("F_v_star[%d]  = %.16f\n", j, cv->F_v_star[k][j]);
-			printf("F_e_star[%d]  = %.16f\n", j, cv->F_e_star[k][j]);
-
-			printf("cc[%d]  = %d\n", j, cv->cell_cell[k][j]);
-		}
-
 	
 	for(int j = 0; j < cp[k][0]*2+2; j++)
 		{
@@ -377,9 +356,6 @@ static int sub_cell_update
 	cv->U_u[k]   = scv[cp[k][0]*2+1].U_u;
 	cv->U_v[k]   = scv[cp[k][0]*2+1].U_v;
 	cv->delta_U_e[k] += delta_U_e;
-
-
-	printf("P_ave=%.16f\n",P_ave);
 	
 	return 1;	
 }
@@ -410,7 +386,7 @@ int cons_qty_update_corr_ave_P
 						num_border = cp[k][0];					
 					else
 						num_border = 4;
-					if(scv[i].vol > 10000*eps)
+					if(scv[i].vol > 0.01*cv->vol[k])
 						for(j = 0; j < num_border; j++)
 							{																	
 								scv[i].U_rho += -tau*scv[i].F_rho[j] * scv[i].length[j] / scv[i].vol;

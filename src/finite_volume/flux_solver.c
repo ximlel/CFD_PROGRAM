@@ -103,16 +103,6 @@ void Riemann_exact_scheme(struct i_f_var * ifv, struct i_f_var * ifv_R)
 	if (!isinf(config[60]))
 		ifv->F_gamma = ifv->F_rho*gamma;
 
-	ifv->RHO = rho_mid;
-	ifv->U   = u_mid;
-	if (dim > 1)
-		ifv->V   = v_mid;
-	ifv->P   = p_mid;
-	if ((int)config[2] == 2)
-		ifv->PHI = phi_mid;
-	ifv->gamma = gamma;
-
-
 	if(mid[1] > 0)
 		ifv->F_delta_e = ifv->delta_U_e*(u_mid*n_x + v_mid*n_y);
 	else
@@ -178,6 +168,7 @@ void Riemann_exact_scheme(struct i_f_var * ifv, struct i_f_var * ifv_R)
 
 			//=======================================================================================
 			ratio_star = (ifv->u_minus_c - ifv->u_star)/ifv->u_minus_c;
+
 			if (dim == 1)
 				{
 					ifv->F_rho_star = ratio_star*ifv->F_rho_star+(1.0-ratio_star)*F_rho;
@@ -217,6 +208,15 @@ void Riemann_exact_scheme(struct i_f_var * ifv, struct i_f_var * ifv_R)
 			if (!isinf(config[60]))
 				ifv->F_gamma_star = ifv->F_gamma;
 		}
+
+	ifv->RHO = rho_mid;
+	ifv->U   = u_mid;
+	if (dim > 1)
+		ifv->V   = v_mid;
+	ifv->P   = p_mid;
+	if ((int)config[2] == 2)
+		ifv->PHI = phi_mid;
+	ifv->gamma = gamma;
 }
 
 

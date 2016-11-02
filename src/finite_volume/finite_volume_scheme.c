@@ -38,7 +38,7 @@ void finite_volume_scheme(struct flu_var *FV, const struct mesh_var mv, const ch
 	double t_all = 0.0;
 	struct i_f_var ifv, ifv_R, ifv_tmp;
 
-	int k, j, ivi, stop_step = 0;
+	int k, j, ivi, stop_step = 0, stop_t = 0;
 	for(int i = 0; i < (int)config[5] && stop_step == 0; ++i)
 		{
 			start_clock = clock();
@@ -63,7 +63,7 @@ void finite_volume_scheme(struct flu_var *FV, const struct mesh_var mv, const ch
 			if(tau < 0.000001)
 				{
 					printf("\nThe length of the time step is so small at step %d, t_all=%lf, tau=%lf.\n",i,t_all,tau);
-					stop_step = 1;
+					stop_t = 1;
 				}
 
 			if(t_all > config[1])
@@ -71,7 +71,7 @@ void finite_volume_scheme(struct flu_var *FV, const struct mesh_var mv, const ch
 					printf("\nThe time is enough at step %d.\n",i);
 					tau = tau - (t_all - config[1]);
 					t_all = config[1];
-					stop_step = 1;
+					stop_t = 1;
 				} // Time
 
 			config[16] = tau;
@@ -128,21 +128,24 @@ void finite_volume_scheme(struct flu_var *FV, const struct mesh_var mv, const ch
 						}
 				}
 
-
-//			cons_qty_update(&cv, mv, *FV, tau);
-			if(cons_qty_update_corr_ave_P(&cv, mv, *FV, tau) == 0)
-				stop_step = 1;
-
-printf("%d\n",i);
+			if (stop_step == 0)
+				{
+//					cons_qty_update(&cv, mv, *FV, tau);
+					if (cons_qty_update_corr_ave_P(&cv, mv, *FV, tau) == 0)
+						stop_step = 1;
+				}
 
 			DispPro(t_all*100.0/config[1], i);
 
 			cpu_time += (clock() - start_clock) / (double)CLOCKS_PER_SEC;
 
-			if (stop_step == 1)
+			if (stop_step == 1 || stop_t == 1)
 				break;
 		}
 
+//	for (int i = 0; i < num_cell; i++)
+//		cv.U_e[i] += cv.delta_U_e[i];
+	
 	fluid_var_update(FV, cv);
 
 	printf("\nThe cost of CPU time for the Eulerian method is %g seconds.\n", cpu_time);

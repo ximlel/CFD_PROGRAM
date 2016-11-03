@@ -144,9 +144,8 @@ void linear_GRP_solver_Edir
 
 source_star[0] = rho_star_L;
 source_star[1] = u_star;
-source_star[2] = v_L;
+source_star[2] = rho_star_R;
 source_star[3] = p_star;
-
     return;
   }
 
@@ -177,8 +176,12 @@ else
     c_star_R = sqrt(gamma * p_star / rho_star_R);
      speed_R = u_R + c_R*sqrt(0.5*((gamma+1.0)*(p_star/p_R) + (gamma-1.0))/gamma);//speed_R = (rho_star_R*u_star - rho_R*u_R) / (rho_star_R - rho_R);
 }
+
   wave_speed[0] = speed_L;
   wave_speed[1] = speed_R;
+  if(CRW[1])
+     wave_speed[1] = u_star + c_star_R;
+
 
   //------trivial case------
   if(speed_L > lambda) //the direction is on the left side of all the three waves
@@ -499,7 +502,6 @@ else
 
 source_star[0] = rho_star_L;
 source_star[1] = u_star;
-source_star[2] = v_L;
+source_star[2] = rho_star_R;
 source_star[3] = p_star;
-
 }

@@ -187,8 +187,37 @@ struct cell_var cell_mem_init(const struct mesh_var mv, struct flu_var * FV)
 		{	
 			CP_INIT_MEM(F_w_star, num_cell);
 		}
+	CP_INIT_MEM(F_rho_minus_c, num_cell);
+	CP_INIT_MEM(F_e_minus_c, num_cell);
+	CP_INIT_MEM(F_gamma_minus_c, num_cell);
+	if ((int)config[2] == 2)
+		CP_INIT_MEM(F_phi_minus_c, num_cell);
+	CP_INIT_MEM(F_u_minus_c, num_cell);
+	if (dim > 1)
+		{
+			CP_INIT_MEM(F_v_minus_c, num_cell);
+		}
+	if (dim > 2)
+		{	
+			CP_INIT_MEM(F_w_minus_c, num_cell);
+		}
+	CP_INIT_MEM(F_rho_add_c, num_cell);
+	CP_INIT_MEM(F_e_add_c, num_cell);
+	CP_INIT_MEM(F_gamma_add_c, num_cell);
+	if ((int)config[2] == 2)
+		CP_INIT_MEM(F_phi_add_c, num_cell);
+	CP_INIT_MEM(F_u_add_c, num_cell);
+	if (dim > 1)
+		{
+			CP_INIT_MEM(F_v_add_c, num_cell);
+		}
+	if (dim > 2)
+		{	
+			CP_INIT_MEM(F_w_add_c, num_cell);
+		}
 	CP_INIT_MEM(u_star, num_cell);
 	CP_INIT_MEM(u_minus_c, num_cell);
+	CP_INIT_MEM(u_add_c, num_cell);
 	CV_INIT_MEM(delta_U_e, num_cell_ghost);	
 	CP_INIT_MEM(F_delta_e, num_cell);
 

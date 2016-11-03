@@ -131,7 +131,8 @@ void finite_volume_scheme(struct flu_var *FV, const struct mesh_var mv, const ch
 			if (stop_step == 0)
 				{
 //					cons_qty_update(&cv, mv, *FV, tau);
-					if (cons_qty_update_corr_ave_P(&cv, mv, *FV, tau) == 0)
+//					if (cons_qty_update_corr_ave_P(&cv, mv, *FV, tau) == 0)
+					if (cons_qty_update_corr_ave_P_all_wave(&cv, mv, *FV, tau) == 0)
 						stop_step = 1;
 				}
 

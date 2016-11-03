@@ -42,8 +42,10 @@ struct cell_var {
 	double *gradx_w,     *grady_w,     *gradz_w;
 	double *delta_U_e;
 	double **F_delta_e;
-	double **F_rho_star, **F_e_star, **F_gamma_star, **F_phi_star, **F_u_star, **F_v_star, **F_w_star;
-	double **u_star, **u_minus_c;
+	double **F_rho_star,    **F_e_star,    **F_gamma_star,    **F_phi_star,    **F_u_star,    **F_v_star,    **F_w_star;
+	double **F_rho_minus_c, **F_e_minus_c, **F_gamma_minus_c, **F_phi_minus_c, **F_u_minus_c, **F_v_minus_c, **F_w_minus_c;
+	double **F_rho_add_c,   **F_e_add_c,   **F_gamma_add_c,   **F_phi_add_c,   **F_u_add_c,   **F_v_add_c,   **F_w_add_c;
+	double **u_star, **u_minus_c, **u_add_c;
 };
 
 //interface
@@ -64,8 +66,10 @@ struct i_f_var {
 	double d_w;
 	double delta_U_e;
 	double F_delta_e;
-	double F_rho_star, F_e_star, F_gamma_star, F_phi_star, F_u_star, F_v_star, F_w_star;
-	double u_star, u_minus_c;
+	double F_rho_star,    F_e_star,    F_gamma_star,    F_phi_star,    F_u_star,    F_v_star,    F_w_star;
+	double F_rho_minus_c, F_e_minus_c, F_gamma_minus_c, F_phi_minus_c, F_u_minus_c, F_v_minus_c, F_w_minus_c;
+	double F_rho_add_c,   F_e_add_c,   F_gamma_add_c,   F_phi_add_c,   F_u_add_c,   F_v_add_c,   F_w_add_c;
+	double u_star, u_minus_c, u_add_c;
 };
 
 //mesh

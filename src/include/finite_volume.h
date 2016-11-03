@@ -6,6 +6,9 @@ int cons_qty_update
 int cons_qty_update_corr_ave_P
 (struct cell_var * cv, const struct mesh_var mv,
  const struct flu_var FV, const double tau);
+int cons_qty_update_corr_ave_P_all_wave
+(struct cell_var * cv, const struct mesh_var mv,
+ const struct flu_var FV, const double tau);
 
 struct cell_var cell_mem_init(const struct mesh_var mv, struct flu_var * FV);
 void vol_comp(struct cell_var * cv, const struct mesh_var mv);

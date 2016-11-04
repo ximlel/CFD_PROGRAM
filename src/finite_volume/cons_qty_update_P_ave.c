@@ -367,7 +367,7 @@ static void sub_cell_init_all_wave
 			scv[j+cp[k][0]*5].length[1] = scv[j+cp[k][0]*2].length[1];
 			scv[j+cp[k][0]*8].length[1] = scv[j+cp[k][0]*2].length[1];
 
-			for (int i= 0; i < 9; i++)
+			for (int i = 0; i < 9; i++)
 				{								
 					scv[j+cp[k][0]*i].length[2] = scv[j+cp[k][0]*i].length[0];
 					scv[j+cp[k][0]*i].length[3] = scv[j+cp[k][0]*i].length[1];
@@ -529,6 +529,7 @@ static void sub_cell_init_all_wave
 			scv[j+cp[k][0]*8].F_v[3]   = -cv.F_v_minus_c[k][j];
 		}
 
+	double h;	
 	for(int j = 0, j_c; j < cp[k][0]; j++)
 		{
 			j_c = j + cp[k][0]*9;
@@ -547,23 +548,26 @@ static void sub_cell_init_all_wave
 					l_p=j+1;
 					l_n=cp[k][0]-1;
 				}
-			scv[j_c].length[0] = -cv.u_add_c[k][j] * tau/scv[j].sin_a;
-			scv[j_c].length[2] = -cv.u_add_c[k][j] * tau/scv[l_p].sin_a;
+			h = -cv.u_add_c[k][j] * tau;
+			scv[j_c].length[0] = h/scv[j].sin_a;
+			scv[j_c].length[2] = h/scv[l_p].sin_a;
 			scv[j_c].length[1] = scv[cp[k][0]*12+1].length[j] + cv.u_minus_c[k][l_n]*tau/scv[j].sin_a + cv.u_minus_c[k][l_p]*tau/scv[l_p].sin_a;
 			scv[j_c].length[3] = scv[j_c].length[1] - scv[j_c].length[0]*scv[j].cos_a - scv[j_c].length[2]*scv[l_p].cos_a;	
-			scv[j_c].vol = (scv[j_c].length[1] + scv[j_c].length[3]) * (-cv.u_add_c[k][j]*tau) / 2.0;
-			
-			scv[j_c+cp[k][0]].length[0] = (cv.u_add_c[k][j]-cv.u_star[k][j]) * tau/scv[j].sin_a;
-			scv[j_c+cp[k][0]].length[2] = (cv.u_add_c[k][j]-cv.u_star[k][j]) * tau/scv[l_p].sin_a;
+			scv[j_c].vol = 0.5*(scv[j_c].length[1] + scv[j_c].length[3]) * h;
+
+			h = (cv.u_add_c[k][j]-cv.u_star[k][j]) * tau;
+			scv[j_c+cp[k][0]].length[0] = h/scv[j].sin_a;
+			scv[j_c+cp[k][0]].length[2] = h/scv[l_p].sin_a;
 			scv[j_c+cp[k][0]].length[1] = scv[j_c].length[3];
 			scv[j_c+cp[k][0]].length[3] = scv[j_c+cp[k][0]].length[1] - scv[j_c+cp[k][0]].length[0]*scv[j].cos_a - scv[j_c+cp[k][0]].length[2]*scv[l_p].cos_a;	
-			scv[j_c+cp[k][0]].vol = (scv[j_c+cp[k][0]].length[1] + scv[j_c+cp[k][0]].length[3]) * ((cv.u_add_c[k][j]-cv.u_star[k][j])*tau) / 2.0;
-			
-			scv[j_c+cp[k][0]*2].length[0] = (cv.u_star[k][j]-cv.u_minus_c[k][j]) * tau/scv[j].sin_a;
-			scv[j_c+cp[k][0]*2].length[2] = (cv.u_star[k][j]-cv.u_minus_c[k][j]) * tau/scv[l_p].sin_a;
+			scv[j_c+cp[k][0]].vol = 0.5*(scv[j_c+cp[k][0]].length[1] + scv[j_c+cp[k][0]].length[3]) * h;
+
+			h = (cv.u_star[k][j]-cv.u_minus_c[k][j]) * tau;
+			scv[j_c+cp[k][0]*2].length[0] = h/scv[j].sin_a;
+			scv[j_c+cp[k][0]*2].length[2] = h/scv[l_p].sin_a;
 			scv[j_c+cp[k][0]*2].length[1] = scv[j_c+cp[k][0]].length[3];
 			scv[j_c+cp[k][0]*2].length[3] = scv[j_c+cp[k][0]*2].length[1] - scv[j_c+cp[k][0]*2].length[0]*scv[j].cos_a - scv[j_c+cp[k][0]*2].length[2]*scv[l_p].cos_a;	
-			scv[j_c+cp[k][0]*2].vol = (scv[j_c+cp[k][0]*2].length[1] + scv[j_c+cp[k][0]*2].length[3]) * ((cv.u_star[k][j]-cv.u_minus_c[k][j])*tau) / 2.0;
+			scv[j_c+cp[k][0]*2].vol = 0.5*(scv[j_c+cp[k][0]*2].length[1] + scv[j_c+cp[k][0]*2].length[3]) * h;
 			
 			
 			scv[j_c].F_rho[0] = cv.F_rho_minus_c[k][l_n];
@@ -633,6 +637,7 @@ static int sub_cell_update_all_wave
 	const int dim = (int)config[0];
 	const double eps = (int)config[4];
 	int ** cp = mv.cell_pt;
+
 	
 	for(int j = 0; j < cp[k][0]*12+2; j++)
 		{
@@ -660,9 +665,16 @@ static int sub_cell_update_all_wave
 					if (isnan(scv[j].PHI) || scv[j].PHI < -0.1 || scv[j].PHI > 1.0 + 0.1)//-100*eps
 						return 0;
 				}
+
+			if (fabs(scv[j].P - 0.1) > 0.0001)
+				{									
+				printf("P=%.16lf, j = %d, k =%d\n",scv[j].P,j,k);
+				printf("vol=%.16lf\n",scv[j].vol);
+				}
+			
 			if (isnan(scv[j].RHO + scv[j].U + scv[j].P) || isinf(scv[j].RHO + scv[j].U + scv[j].P) || scv[j].RHO < -100*eps || scv[j].P < -100*eps)
 				return 0;
-		}
+			}
 
 	double P_ave = 0.0, delta_U_e;
 	for(int j = 0; j < cp[k][0]*12+1; j++)
@@ -711,7 +723,7 @@ int cons_qty_update_corr_ave_P_all_wave
 						num_border = cp[k][0];					
 					else
 						num_border = 4;
-					if(scv[i].vol > 0.001*cv->vol[k])
+					if(scv[i].vol > 0.1*cv->vol[k])
 						for(j = 0; j < num_border; j++)
 							{																	
 								scv[i].U_rho += -tau*scv[i].F_rho[j] * scv[i].length[j] / scv[i].vol;
